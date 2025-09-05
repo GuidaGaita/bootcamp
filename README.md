@@ -1,4 +1,4 @@
-# Lembrete Rápido
+## Lembrete Rápido
 
 Uma extensão simples para Google Chrome que permite salvar e acessar rapidamente um lembrete diretamente do navegador.
 
