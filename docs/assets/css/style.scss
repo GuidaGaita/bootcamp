@@ -1,0 +1,72 @@
+---
+---
+
+@import "{{ site.theme }}";
+
+.main-content {
+  h1, h2, h3, h4, h5, h6 {
+    color: #2c3e50;
+    margin-top: 2rem;
+  }
+}
+
+.page-header {
+  background-color: #3498db;
+  background-image: linear-gradient(120deg, #3498db, #2980b9);
+}
+
+.project-tagline {
+  margin-bottom: 2rem;
+}
+
+.btn {
+  margin-bottom: 1rem;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+.download-button {
+  display: inline-block;
+  margin: 1rem 0;
+  padding: 0.75rem 1rem;
+  background-color: #3498db;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: #2980b9;
+    text-decoration: none;
+    color: white;
+  }
+}
+
+.features {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 2rem 0;
+  
+  .feature {
+    flex: 1 1 300px;
+    margin: 1rem;
+    padding: 1.5rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.screenshot {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  margin: 2rem 0;
+}

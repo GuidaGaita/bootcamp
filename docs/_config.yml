@@ -1,0 +1,10 @@
+remote_theme: pages-themes/cayman@v0.2.0
+plugins:
+- jekyll-remote-theme
+
+title: Lembrete Rápido
+description: Extensão para Chrome que permite salvar e acessar notas rapidamente
+show_downloads: true
+github:
+  zip_url: https://github.com/GuidaGaita/bootcamp/archive/refs/heads/main.zip
+  repository_url: https://github.com/GuidaGaita/bootcamp
