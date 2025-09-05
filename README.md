@@ -1,6 +1,11 @@
 ## Lembrete Rápido
+acesse pelo gh pages: https://guidagaita.github.io/bootcamp2-chrome-ext-Guidagaita/
+
 
 Uma extensão simples para Google Chrome que permite salvar e acessar rapidamente um lembrete diretamente do navegador.
+
+<img width="664" height="555" alt="image" src="https://github.com/user-attachments/assets/7497f0e0-8f01-4791-ba0d-ac328b7c57fb" />
+
 
 ## Funcionalidades
 
