@@ -46,6 +46,6 @@ Lembrete Rápido ajuda você a guardar informações importantes de forma rápid
 Contribuições são bem-vindas.
 
 [Ver no GitHub](https://github.com/GuidaGaita/bootcamp){: .download-button }
-[Ver no GitHub](https://github.com/GuidaGaita/bootcamp){: .download-button }
 
+> Build trigger: atualização mínima em {{ site.time | date: "%Y-%m-%d %H:%M %Z" }}
 > Build trigger: atualização mínima em {{ site.time | date: "%Y-%m-%d %H:%M %Z" }}
