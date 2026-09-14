@@ -96,7 +96,7 @@
 | RN-11 | **Força de senha:** pontuação de 0 (muito fraca) a 4 (muito forte). Uma senha é considerada **fraca** quando a pontuação é ≤ 2. | RF-15, RF-16 |
 | RN-12 | A **exclusão de conta** é definitiva e remove todas as credenciais e sessões do usuário. | RF-07 |
 | RN-13 | **Paginação:** `limit` entre 1 e 100 (padrão 20) e `offset` ≥ 0; um `offset` além do total retorna lista vazia (não é erro). | RF-09, RF-10 |
-| RN-14 | Após **5 falhas consecutivas** de login para um mesmo e-mail, novas tentativas são bloqueadas por **15 minutos** (HTTP 429). Um login bem-sucedido zera o contador. | RF-03, RNF-07 |
+| RN-14 | Após **5 falhas consecutivas** de login para um mesmo e-mail normalizado, **cadastrado ou não**, novas tentativas são bloqueadas por **15 minutos** (HTTP 429). O comportamento é idêntico para e-mails inexistentes, para não revelar quais contas existem (RN-04). Um login bem-sucedido zera o contador. | RF-03, RN-04, RNF-07 |
 | RN-15 | A busca é **case-insensitive** por substring nos campos título, usuário e URL. | RF-10 |
 
 ---

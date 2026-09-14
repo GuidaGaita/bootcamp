@@ -106,8 +106,6 @@ erDiagram
     blob kdf_salt "16 bytes"
     json kdf_params "memória, iterações, paralelismo"
     blob wrapped_dek "DEK cifrada pela KEK"
-    int failed_login_count
-    datetime locked_until
     datetime created_at
     datetime updated_at
   }
@@ -128,7 +126,15 @@ erDiagram
     datetime created_at
     datetime updated_at
   }
+  LOGIN_THROTTLES {
+    string email_hash PK "SHA-256 do e-mail normalizado"
+    int failed_count
+    datetime locked_until
+    datetime updated_at
+  }
 ```
+
+- `LOGIN_THROTTLES` **não** tem chave estrangeira para `USERS`: o controle de tentativas (RN-14) vale para qualquer e-mail, cadastrado ou não, de modo que o bloqueio não revela quais contas existem (RN-04).
 
 - **Nenhum campo de credencial fica em claro** — nem título nem URL ([ADR-0010](adr/0010-cifrar-todos-os-campos-da-credencial.md)). Listagem, ordenação e busca acontecem **em memória**, após decifrar o cofre do usuário (limitado a 1.000 itens, RN-07).
 - Datas em UTC. IDs são UUID v4.
@@ -149,7 +155,7 @@ sequenceDiagram
   C->>API: POST /api/v1/sessions (email, master_password)
   API->>SS: login(email, master_password)
   SS->>DB: buscar usuário pelo e-mail normalizado
-  SS->>SS: verificar bloqueio (RN-14)
+  SS->>DB: consultar bloqueio do e-mail em login_throttles (RN-14)
   SS->>CR: verificar hash Argon2id
   SS->>CR: KEK = Argon2id(senha mestra, kdf_salt)
   SS->>CR: DEK = decifrar(KEK, wrapped_dek)

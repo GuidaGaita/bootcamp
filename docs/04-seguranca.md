@@ -18,8 +18,8 @@
 | ID | Ameaça | Cenário | Mitigação | Requisitos |
 |----|--------|---------|-----------|------------|
 | A1 | Vazamento do banco | Atacante obtém cópia do arquivo SQLite. | Todos os campos de credencial cifrados; DEK só pode ser liberada com a senha mestra (via Argon2id, caro para força bruta offline) ou com um token de sessão válido, que não está no banco. | RNF-01, RNF-02, RNF-06 |
-| A2 | Força bruta online | Tentativas repetidas de login. | Bloqueio após 5 falhas por 15 min; custo do Argon2id por tentativa. | RNF-07, RN-14 |
-| A3 | Enumeração de contas pelo login | Descobrir e-mails cadastrados pela resposta ou pelo tempo do login. | Mensagem genérica; quando o e-mail não existe, executa-se uma verificação Argon2id contra um hash fictício para igualar o tempo de resposta. | RN-04 |
+| A2 | Força bruta online | Tentativas repetidas de login. | Bloqueio após 5 falhas por 15 min, controlado por e-mail na tabela `login_throttles`; custo do Argon2id por tentativa. | RNF-07, RN-14 |
+| A3 | Enumeração de contas pelo login | Descobrir e-mails cadastrados pela resposta, pelo tempo ou pelo bloqueio do login. | Mensagem genérica; quando o e-mail não existe, executa-se uma verificação Argon2id contra um hash fictício para igualar o tempo de resposta; o bloqueio (RN-14) é contado e aplicado igualmente a e-mails cadastrados e inexistentes. | RN-04, RN-14 |
 | A4 | Acesso indevido (IDOR) | Usuário troca o ID da credencial na URL. | Toda consulta filtra por `user_id` da sessão; recurso alheio retorna 404; a AAD da cifragem inclui o `user_id`. | RNF-03 |
 | A5 | Roubo de token | Token interceptado ou vazado no cliente. | Expiração absoluta de 30 min; logout; revogação de todas as sessões ao alterar a senha mestra; TLS no proxy reverso. | RNF-06, RN-05 |
 | A6 | Adulteração de dados cifrados | Alterar ou trocar `ciphertext` entre linhas do banco. | AES-GCM (cifragem autenticada) com AAD vinculada ao usuário e ao ID da credencial: qualquer troca ou alteração falha na decifragem. | RNF-01 |
@@ -75,7 +75,7 @@ O texto claro de uma credencial é o JSON UTF-8 `{"title", "username", "password
 | Evento | O que acontece |
 |--------|----------------|
 | **Cadastro** (RF-02) | Valida RN-01/RN-02 → gera `password_hash` → gera `kdf_salt` → deriva KEK → gera DEK aleatória → `wrapped_dek = AES-GCM(KEK, DEK)` → persiste. KEK e DEK descartadas. |
-| **Login** (RF-03) | Verifica bloqueio → verifica hash (ou hash fictício, se o e-mail não existe) → em falha incrementa contador → em sucesso zera contador, deriva KEK, decifra DEK, gera token, deriva chave de sessão, persiste `token_hash` + `session_wrapped_dek` + `expires_at`, remove sessões expiradas do usuário. |
+| **Login** (RF-03) | Verifica o bloqueio do e-mail em `login_throttles` (vale também para e-mails inexistentes) → verifica hash (ou hash fictício, se o e-mail não existe) → em falha incrementa o contador do e-mail → em sucesso zera o contador, deriva KEK, decifra DEK, gera token, deriva chave de sessão, persiste `token_hash` + `session_wrapped_dek` + `expires_at`, remove sessões expiradas do usuário. |
 | **Requisição autenticada** | Localiza sessão por `SHA-256(token)` → rejeita se expirada → deriva chave de sessão → decifra DEK → usa DEK apenas durante a requisição. |
 | **Logout** (RF-04) | Remove a linha da sessão; o token deixa de funcionar imediatamente. |
 | **Alteração de senha mestra** (RF-06) | Verifica senha atual → valida RN-02 para a nova → novo `password_hash` → novo `kdf_salt` → nova KEK → **re-embrulha a mesma DEK** → remove **todas** as sessões. As credenciais não são recifradas. |
