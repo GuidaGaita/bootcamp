@@ -189,7 +189,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
     - `/health` responde 200 com `{"status": "ok"}` e `X-Request-ID` (`req("RF-01", "RNF-10")`);
     - `/docs` responde 200 (`req("RNF-08", "RNF-10")`);
     - `exec -T api id -u` retorna valor diferente de `0` (`req("RNF-10", "RNF-15")`);
-    - após `restart api`, `exec -T api test -f /data/cofre.db` tem sucesso (`req("RNF-10")`);
+    - o teste chama `/health`, confirma com `exec -T api test -f /data/cofre.db` que o arquivo existe, executa `restart api` e confirma de novo que ele existe, sem depender da ordem dos outros testes (`req("RNF-10")`);
     - `run --rm tests pytest tests/unit/test_clock.py --no-cov` grava `reports/junit.xml` no host (`req("RNF-10")`).
   - **`tests/unit/test_ci_workflow.py`** (marcador `unit`, `req("RNF-10", "RNF-11")`): lê `.github/workflows/ci.yml` e verifica:
     - gatilhos `pull_request`/`push` para `develop` e `main`;
