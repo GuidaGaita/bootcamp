@@ -6,7 +6,7 @@ Instruções do Claude Code para este repositório. Valem para toda sessão.
 
 **Cofre**: API REST multiusuário de gerenciamento de senhas (Python 3.13, FastAPI, SQLite), desenvolvida com **Specification-Driven Development** usando o **GitHub Spec Kit**. Projeto individual de bootcamp, mantido por @GuidaGaita.
 
-**Estado atual:** incremento 0 (documentação e governança). **Ainda não existe código de aplicação.** O próximo passo é a spec da unidade 001 ([docs/09-roadmap.md](docs/09-roadmap.md)).
+**Estado atual:** incremento 0 concluído (release `v0.1.0`). **Ainda não existe código de aplicação.** O próximo passo é a spec da unidade 001, na branch `spec/001-fundacao-da-api` ([docs/09-roadmap.md](docs/09-roadmap.md)).
 
 ## Fontes da verdade (ordem de precedência)
 
@@ -47,7 +47,8 @@ Convenções do Spec Kit neste repositório:
 - Toda `spec.md` termina com a seção `## Histórico de revisões`.
 - Status da spec: `Rascunho` · `Em revisão` · `Aprovada` · `Implementada` · `Revisada`.
 - A extensão git do Spec Kit não está instalada: crie as branches manualmente.
-- Não edite à mão `.specify/scripts/`, `.specify/templates/` nem `.claude/skills/speckit-*`.
+- Não edite à mão `.specify/scripts/`, `.specify/templates/*.md` nem `.claude/skills/speckit-*`. Personalizações de template vão em `.specify/templates/overrides/` (já existe um `spec-template.md`).
+- `/speckit-taskstoissues` exige o servidor MCP do GitHub. Sem ele, crie as issues com `gh issue create`, uma por tarefa, com título `T0xx: <descrição>` e labels `tipo:tarefa` e `unidade:NNN`.
 
 ## Git e GitHub
 

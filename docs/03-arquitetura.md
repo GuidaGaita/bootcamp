@@ -1,6 +1,6 @@
 # 03 — Arquitetura
 
-> **Status:** Aprovado · **Versão:** 1.0.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.1.0 · **Última revisão:** 2026-09-13
 > Descreve a arquitetura-alvo. O detalhamento de cada unidade (modelo de dados, contratos, pesquisa técnica) é produzido por `/speckit-plan` em `specs/NNN-*/`.
 
 ## 1. Visão de contexto
@@ -48,6 +48,7 @@ flowchart TB
     UR["UserRepository"]
     SR["SessionRepository"]
     CR["CredentialRepository"]
+    LT["LoginThrottleRepository"]
   end
   CORE["core: Settings · Clock · erros de domínio · logging"]
   api --> services
@@ -78,7 +79,8 @@ flowchart TB
 
 ```text
 src/cofre/
-├── main.py                 # create_app(): monta a aplicação FastAPI
+├── main.py                 # create_app(settings=None, clock=None): fábrica da aplicação
+│                           # (uvicorn cofre.main:create_app --factory)
 ├── core/                   # config.py, clock.py, errors.py, logging.py
 ├── api/
 │   ├── routers/            # health.py, accounts.py, sessions.py, credentials.py, passwords.py, vault.py
@@ -87,10 +89,10 @@ src/cofre/
 │   └── errors.py           # handlers → formato de erro padronizado
 ├── services/               # accounts.py, sessions.py, vault.py, passwords.py, health_report.py
 ├── crypto/                 # hashing.py, kdf.py, cipher.py, keys.py, tokens.py
-└── repositories/           # database.py, models.py, users.py, sessions.py, credentials.py
+└── repositories/           # database.py, models.py, users.py, sessions.py, credentials.py, login_throttles.py
 tests/
 ├── conftest.py             # fixtures do harness (ver 07-estrategia-de-testes.md)
-├── unit/  integration/  api/  security/
+├── unit/  integration/  api/  security/  smoke/  perf/
 ```
 
 ## 3. Modelo de dados conceitual
@@ -105,7 +107,7 @@ erDiagram
     string password_hash "Argon2id (PHC string)"
     blob kdf_salt "16 bytes"
     json kdf_params "memória, iterações, paralelismo"
-    blob wrapped_dek "DEK cifrada pela KEK"
+    blob wrapped_dek "nonce + DEK cifrada pela KEK + tag"
     datetime created_at
     datetime updated_at
   }
@@ -113,15 +115,14 @@ erDiagram
     uuid id PK
     uuid user_id FK
     string token_hash UK "SHA-256 do token"
-    blob session_wrapped_dek "DEK cifrada pela chave de sessão"
+    blob session_wrapped_dek "nonce + DEK cifrada pela chave de sessão + tag"
     datetime created_at
     datetime expires_at
   }
   CREDENTIALS {
     uuid id PK
     uuid user_id FK
-    blob ciphertext "JSON cifrado com todos os campos"
-    blob nonce "12 bytes"
+    blob ciphertext "nonce + JSON cifrado com todos os campos + tag"
     int enc_version
     datetime created_at
     datetime updated_at
@@ -134,9 +135,9 @@ erDiagram
   }
 ```
 
-- `LOGIN_THROTTLES` **não** tem chave estrangeira para `USERS`: o controle de tentativas (RN-14) vale para qualquer e-mail, cadastrado ou não, de modo que o bloqueio não revela quais contas existem (RN-04).
-
-- **Nenhum campo de credencial fica em claro** — nem título nem URL ([ADR-0010](adr/0010-cifrar-todos-os-campos-da-credencial.md)). Listagem, ordenação e busca acontecem **em memória**, após decifrar o cofre do usuário (limitado a 1.000 itens, RN-07).
+- **Nenhum campo de credencial fica em claro**, nem título nem URL ([ADR-0010](adr/0010-cifrar-todos-os-campos-da-credencial.md)). Listagem, ordenação e busca acontecem **em memória**, após decifrar o cofre do usuário (limitado a 1.000 itens, RN-07).
+- Todo valor cifrado com AES-GCM ocupa **uma única coluna** no formato `nonce (12 bytes) ‖ texto cifrado ‖ tag (16 bytes)` ([04-seguranca.md §3.2](04-seguranca.md#32-formato-dos-dados-cifrados-e-aad)).
+- `LOGIN_THROTTLES` **não** tem chave estrangeira para `USERS`: o controle de tentativas (RN-14, RN-16) vale para qualquer e-mail, cadastrado ou não, de modo que o bloqueio não revela quais contas existem (RN-04).
 - Datas em UTC. IDs são UUID v4.
 - Exclusões de usuário removem sessões e credenciais em cascata (RN-12).
 
@@ -154,9 +155,10 @@ sequenceDiagram
   participant DB as repositories
   C->>API: POST /api/v1/sessions (email, master_password)
   API->>SS: login(email, master_password)
-  SS->>DB: buscar usuário pelo e-mail normalizado
   SS->>DB: consultar bloqueio do e-mail em login_throttles (RN-14)
-  SS->>CR: verificar hash Argon2id
+  SS->>DB: buscar usuário pelo e-mail normalizado
+  SS->>CR: verificar hash Argon2id da senha normalizada (NFKC)
+  Note over SS,CR: e-mail inexistente: verifica contra hash fictício (A3)
   SS->>CR: KEK = Argon2id(senha mestra, kdf_salt)
   SS->>CR: DEK = decifrar(KEK, wrapped_dek)
   SS->>CR: token = 32 bytes aleatórios
@@ -179,7 +181,7 @@ sequenceDiagram
   C->>D: GET /api/v1/credentials/ID com Authorization Bearer
   D->>SS: resolve(token)
   SS->>DB: sessão por SHA-256(token)
-  SS->>SS: rejeitar se inexistente ou expirada (401)
+  SS->>SS: rejeitar se malformado, inexistente ou expirado (401)
   SS-->>D: contexto (user_id, DEK)
   D->>VS: obter(contexto, ID)
   VS->>DB: credencial por (ID, user_id)
@@ -195,7 +197,8 @@ Os fluxos de cadastro, alteração de senha mestra e exclusão estão descritos 
 | Aspecto | Decisão |
 |---------|---------|
 | Configuração | Variáveis de ambiente com prefixo `COFRE_` via `pydantic-settings` (lista em [08-ambiente-e-agentes.md](08-ambiente-e-agentes.md#3-variáveis-de-ambiente)). |
-| Tempo | `Clock` injetável em `core` — permite testar expiração de sessão e bloqueio sem `sleep`. |
+| Inicialização | `create_app(settings=None, clock=None)` é a única forma de montar a aplicação. Sem argumentos, como o Uvicorn a chama com `--factory`, lê `Settings` do ambiente e usa o relógio do sistema; os testes passam configuração e relógio de teste. Nada é lido do ambiente na importação do módulo. |
+| Tempo | `Clock` injetável em `core`, que permite testar expiração de sessão e bloqueio sem `sleep`. |
 | Aleatoriedade | Fonte injetável baseada em `secrets`, substituível apenas em testes unitários do gerador. |
 | Transações | Uma sessão de banco por requisição; o *service* confirma ou desfaz a unidade de trabalho. |
 | Erros | Services lançam erros de domínio (`NotFoundError`, `InvalidCredentialsError`...); a camada `api` os traduz para HTTP. |
@@ -210,7 +213,7 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 
 | Método | Rota | Autenticação | Requisito | Sucesso |
 |--------|------|:------------:|-----------|---------|
-| GET | `/health` | — | RF-01 | 200 |
+| GET | `/health` | — | RF-01 | 200 (503 se o banco estiver indisponível) |
 | POST | `/api/v1/accounts` | — | RF-02 | 201 |
 | POST | `/api/v1/sessions` | — | RF-03 | 201 |
 | DELETE | `/api/v1/sessions/current` | Bearer | RF-04 | 204 |
@@ -226,7 +229,9 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | POST | `/api/v1/passwords/strength` | — | RF-15 | 200 |
 | GET | `/api/v1/vault/health-report` | Bearer | RF-16 | 200 |
 
-> A exclusão de conta usa `POST .../deletion` porque exige a senha mestra no corpo, e corpo em `DELETE` é mal suportado por clientes e proxies.
+> - A exclusão de conta usa `POST .../deletion` porque exige a senha mestra no corpo, e corpo em `DELETE` é mal suportado por clientes e proxies.
+> - `/health` responde `{"status": "ok"}` e fica fora de `/api/v1` para uso por orquestradores; não expõe versões nem detalhes do banco.
+> - O gerador e o avaliador são públicos porque não acessam dados de usuário.
 
 ### 6.2 Convenções
 
@@ -234,7 +239,7 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 - Autenticação: `Authorization: Bearer <token>`.
 - Respostas paginadas: `{"items": [...], "total": 42, "limit": 20, "offset": 0}`.
 - Todas as respostas de `/api/v1` levam `Cache-Control: no-store`.
-- Toda resposta leva `X-Request-ID` (gerado ou propagado).
+- Toda resposta leva `X-Request-ID`. O valor recebido do cliente só é propagado se tiver até 64 caracteres entre letras, dígitos e hífen; nos demais casos, gera-se um UUID v4. Isso impede injeção de conteúdo nos logs.
 
 ### 6.3 Formato de erro padronizado
 
@@ -253,10 +258,19 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | HTTP | `code` | Quando |
 |------|--------|--------|
 | 401 | `UNAUTHENTICATED` | Token ausente, malformado, expirado ou revogado. |
-| 401 | `INVALID_CREDENTIALS` | E-mail/senha mestra incorretos no login, ou senha mestra atual incorreta em operações que a exigem. |
+| 401 | `INVALID_CREDENTIALS` | E-mail ou senha mestra incorretos no login (RN-04). |
+| 403 | `INVALID_MASTER_PASSWORD` | Senha mestra atual incorreta em operação autenticada (RF-06, RF-07). Não usa 401 para que o cliente não interprete a falha como sessão expirada (RN-16). |
 | 404 | `NOT_FOUND` | Recurso inexistente **ou pertencente a outro usuário** (RNF-03). |
 | 409 | `EMAIL_ALREADY_REGISTERED` | Cadastro com e-mail já existente. |
 | 409 | `VAULT_LIMIT_REACHED` | Limite de 1.000 credenciais atingido (RN-07). |
-| 422 | `VALIDATION_ERROR` | Entrada inválida, incluindo JSON malformado e violações de RN-02, RN-06, RN-10 e RN-13. |
-| 429 | `TOO_MANY_ATTEMPTS` | Login bloqueado (RN-14); inclui o cabeçalho `Retry-After`. |
+| 422 | `VALIDATION_ERROR` | Entrada inválida, incluindo JSON malformado e violações de RN-01, RN-02, RN-06, RN-10, RN-11 e RN-13. |
+| 429 | `TOO_MANY_ATTEMPTS` | Login ou verificação de senha mestra bloqueados (RN-14, RN-16); inclui o cabeçalho `Retry-After`. |
 | 500 | `INTERNAL_ERROR` | Erro inesperado; nunca expõe detalhes internos. |
+| 503 | `SERVICE_UNAVAILABLE` | `/health` quando o banco não responde (RF-01). |
+
+## 7. Histórico de revisões
+
+| Versão | Data | Mudança | Origem |
+|--------|------|---------|--------|
+| 1.0.0 | 2026-09-13 | Versão inicial; entidade `LOGIN_THROTTLES` (R-007). | PR #1 |
+| 1.1.0 | 2026-09-13 | Formato único `nonce ‖ texto cifrado ‖ tag` (remove a coluna `nonce`); erro 403 `INVALID_MASTER_PASSWORD` e 503 `SERVICE_UNAVAILABLE`; fábrica `create_app` com `--factory`; ordem do login (bloqueio antes da busca do usuário); diretórios `smoke/` e `perf/`; padrões de `create_app` e validação de `X-Request-ID`. | Auditoria da documentação (R-008, R-010, R-014 a R-016, R-020, R-021) |

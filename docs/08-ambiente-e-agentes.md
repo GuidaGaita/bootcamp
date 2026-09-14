@@ -1,6 +1,6 @@
 # 08 — Ambiente de Desenvolvimento e Agentes de IA
 
-> **Status:** Aprovado · **Versão:** 1.0.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.1.0 · **Última revisão:** 2026-09-13
 > Decisões relacionadas: [ADR-0003](adr/0003-claude-code-como-agente-unico.md), [ADR-0004](adr/0004-sdd-com-github-spec-kit.md), [ADR-0006](adr/0006-python-fastapi-uv.md), [ADR-0014](adr/0014-ambiente-reprodutivel-com-docker.md).
 
 ## 1. Pré-requisitos
@@ -9,11 +9,12 @@
 |------------|--------|----------|
 | Git | 2.40+ | Versionamento |
 | Docker + Docker Compose v2 | 24+ | Ambiente reprodutível (caminho recomendado) |
-| Python | 3.13 | Execução local sem Docker |
-| [uv](https://docs.astral.sh/uv/) | 0.12+ | Dependências e ambiente virtual |
+| [uv](https://docs.astral.sh/uv/) | 0.12+ | Dependências, ambiente virtual e instalação do Python |
+| Python | 3.13 | Execução local sem Docker (`uv python install 3.13` instala se faltar) |
 | [GitHub CLI](https://cli.github.com/) (`gh`) | 2.x | PRs, issues e projects pelo terminal |
 | [Claude Code](https://docs.anthropic.com/en/docs/claude-code/setup) | atual | Agente de IA do projeto |
 | [Specify CLI](https://github.com/github/spec-kit) (Spec Kit) | **1.0.6** | Fluxo SDD |
+| Servidor MCP do GitHub no Claude Code | — | *Opcional:* necessário apenas para `/speckit-taskstoissues` (seção 5.2) |
 
 ```bash
 # uv (alternativas em https://docs.astral.sh/uv/getting-started/installation/)
@@ -24,6 +25,8 @@ uv tool install specify-cli --from git+https://github.com/github/spec-kit.git@v1
 specify version
 ```
 
+> No Windows, `uv tool install` coloca o executável `specify` em `%USERPROFILE%\.local\bin`; adicione essa pasta ao `PATH` se o comando não for encontrado.
+
 ## 2. Arquivos de padronização do ambiente
 
 | Arquivo | Finalidade | Situação |
@@ -33,7 +36,7 @@ specify version
 | `pyproject.toml` | Metadados, dependências e configuração de `ruff`, `pytest` e `coverage` | Incremento 1 |
 | `uv.lock` | Versões exatas das dependências | Incremento 1 |
 | `Dockerfile` | Imagem multi-stage `python:3.13-slim`, usuário não-root, `uv sync --frozen` | Incremento 1 |
-| `docker-compose.yml` | Serviço `api` (porta 8000, volume `cofre-data`) e serviço `tests` (roda a suíte e grava `reports/`) | Incremento 1 |
+| `docker-compose.yml` | Serviço `api` (porta 8000, volume `cofre-data`, `COFRE_DATABASE_URL=sqlite:////data/cofre.db`) e serviço `tests` (roda a suíte e grava `reports/`) | Incremento 1 |
 | `.env.example` | Variáveis de ambiente documentadas | Incremento 1 |
 | `.github/workflows/ci.yml` | Lint, testes e build no GitHub Actions | Incremento 1 |
 
@@ -42,10 +45,10 @@ specify version
 | Variável | Padrão | Descrição |
 |----------|--------|-----------|
 | `COFRE_ENV` | `production` | `production`, `development` ou `test`. Parâmetros criptográficos reduzidos só em `test`. |
-| `COFRE_DATABASE_URL` | `sqlite:////data/cofre.db` | URL do banco (SQLAlchemy). |
+| `COFRE_DATABASE_URL` | `sqlite:///./data/cofre.db` | URL do banco (SQLAlchemy), relativa ao diretório de execução. O `docker-compose.yml` define `sqlite:////data/cofre.db`, no volume `cofre-data`. |
 | `COFRE_SESSION_TTL_MINUTES` | `30` | Validade da sessão (RN-05). |
-| `COFRE_LOGIN_MAX_ATTEMPTS` | `5` | Falhas antes do bloqueio (RN-14). |
-| `COFRE_LOGIN_LOCK_MINUTES` | `15` | Duração do bloqueio (RN-14). |
+| `COFRE_LOGIN_MAX_ATTEMPTS` | `5` | Falhas antes do bloqueio (RN-14, RN-16). |
+| `COFRE_LOGIN_LOCK_MINUTES` | `15` | Duração do bloqueio (RN-14, RN-16). |
 | `COFRE_MAX_CREDENTIALS_PER_USER` | `1000` | Limite do cofre (RN-07). |
 | `COFRE_ARGON2_MEMORY_KIB` | `19456` | Memória do Argon2id (mínimo fora de `test`). |
 | `COFRE_ARGON2_TIME_COST` | `2` | Iterações do Argon2id. |
@@ -63,7 +66,7 @@ docker compose run --rm tests        # suíte completa; relatórios em ./reports
 
 # Sem Docker
 uv sync
-uv run uvicorn cofre.main:app --reload
+uv run uvicorn cofre.main:create_app --factory --reload
 uv run pytest
 ```
 
@@ -77,9 +80,10 @@ O projeto usa **somente o Claude Code** como agente de IA ([ADR-0003](adr/0003-c
 |---------|----------|--------|
 | [`CLAUDE.md`](../CLAUDE.md) | Regras do projeto, fontes da verdade, fluxo SDD, convenções e limites do agente. Carregado automaticamente em toda sessão. | Escrito para o projeto |
 | [`.specify/memory/constitution.md`](../.specify/memory/constitution.md) | Princípios inegociáveis, verificados pelo *Constitution Check* de cada plano | Escrito para o projeto |
+| [`.specify/templates/overrides/spec-template.md`](../.specify/templates/overrides/spec-template.md) | Template de spec personalizado: versão, status em pt-BR, citação de IDs e *Histórico de revisões* | Escrito para o projeto |
 | `.claude/skills/speckit-*/` | 10 skills do fluxo SDD | Gerado por `specify init --here --integration claude --script py` (Spec Kit 1.0.6) |
 | `.claude/skills/grill-me/` e `.claude/skills/grilling/` | Entrevista estruturada para amadurecer ideias antes de especificar | [mattpocock/skills](https://github.com/mattpocock/skills) @ `3cca18b` (MIT) |
-| `.specify/templates/` | Templates de spec, plano, tarefas, checklist e constituição | Spec Kit |
+| `.specify/templates/*.md` | Templates padrão de spec, plano, tarefas, checklist e constituição | Spec Kit |
 | `.specify/scripts/python/` | Scripts chamados pelas skills (criação de feature, setup de plano e tarefas) | Spec Kit |
 | `.claude/settings.local.json` | Preferências pessoais de permissão | Local (ignorado pelo Git) |
 
@@ -95,7 +99,7 @@ O projeto usa **somente o Claude Code** como agente de IA ([ADR-0003](adr/0003-c
 | `/speckit-checklist` | Fase A (opcional) | Checklist de qualidade dos requisitos |
 | `/speckit-tasks` | Fase A | `tasks.md` |
 | `/speckit-analyze` | Fase A | Relatório de consistência entre artefatos |
-| `/speckit-taskstoissues` | Após o merge do PR de spec | Issues de tarefa no GitHub |
+| `/speckit-taskstoissues` | Após o merge do PR de spec. **Requer o servidor MCP do GitHub** configurado no Claude Code (`claude mcp add`); sem ele, usar `gh issue create` ([05-processo-sdd.md](05-processo-sdd.md#fase-b--implementação)) | Issues de tarefa no GitHub |
 | `/speckit-implement` | Fase B | Testes e código |
 | `/speckit-converge` | Fase B | Tarefas restantes anexadas a `tasks.md` |
 | `/code-review` | Revisão de PR | Achados publicados como comentários |
@@ -132,5 +136,12 @@ flowchart LR
 
 | Ferramenta | Como atualizar |
 |------------|----------------|
-| Spec Kit | `specify self check` → `specify self upgrade --tag vX.Y.Z` → `specify init --here --force --integration claude --script py`. A mudança vai em PR `chore/atualiza-spec-kit`; revisar o diff dos arquivos gerados e atualizar a versão citada nos docs. |
+| Spec Kit | `specify self check` → `specify self upgrade --tag vX.Y.Z` → `specify init --here --force --integration claude --script py`. A mudança vai em PR `chore/atualiza-spec-kit`: revisar o diff dos arquivos gerados, comparar `.specify/templates/overrides/spec-template.md` com o novo template padrão e atualizar a versão citada nos docs. |
 | Skills do mattpocock | Copiar novamente de `skills/productivity/{grill-me,grilling}` e registrar o novo commit nesta página. |
+
+## 6. Histórico de revisões
+
+| Versão | Data | Mudança | Origem |
+|--------|------|---------|--------|
+| 1.0.0 | 2026-09-13 | Versão inicial. | PR #1 |
+| 1.1.0 | 2026-09-13 | Banco padrão relativo e `/data` só no compose; Uvicorn com `--factory`; override do template de spec; dependência do servidor MCP do GitHub em `/speckit-taskstoissues`; instalação do Python e do `specify` no Windows. | Auditoria da documentação (R-015, R-017, R-018) |
