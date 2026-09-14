@@ -7,7 +7,7 @@
 | **Pedido** | "Faça uma auditoria geral e, se achado algum erro ou inconsistência, arrume." |
 | **Escopo** | `docs/` (todos os documentos, ADRs e registros), `README.md`, `CLAUDE.md`, constituição, templates do GitHub e configuração do Spec Kit |
 | **Base** | `develop` após a release `v0.1.0` |
-| **Resultado** | 25 achados, todos corrigidos; 11 refinamentos registrados (R-008 a R-018) |
+| **Resultado** | 25 achados na auditoria e 4 na revisão do PR #3, todos corrigidos; refinamentos R-008 a R-021 |
 
 ## 1. Método
 
@@ -78,3 +78,16 @@
 | `07-estrategia-de-testes.md` | 1.0.0 | 1.1.0 |
 | `08-ambiente-e-agentes.md` | 1.0.0 | 1.1.0 |
 | `09-roadmap.md` | 1.0.0 | 1.0.1 |
+
+## 6. Revisão do PR da auditoria
+
+A revisão assistida por IA do [PR #3](https://github.com/GuidaGaita/bootcamp/pull/3) examinou o que **a própria auditoria introduziu** e encontrou mais 4 problemas, também corrigidos:
+
+| # | Sev. | Achado | Correção | Refinamento |
+|---|:----:|--------|----------|-------------|
+| 1 | 🟡 | A RN-16 respondia 429 "ao atingir o limite", o que conflitava com a RN-14 e com a revogação imediata das sessões; o e-mail já bloqueado pelo login ficava sem regra. | A falha que atinge o limite responde 403 e revoga as sessões; com o e-mail já bloqueado, a resposta é 429 sem verificar a senha. | R-019 |
+| 2 | 🟡 | `uvicorn --factory` chama `create_app()` sem argumentos, mas a assinatura documentada não tinha padrões. | `create_app(settings=None, clock=None)`. | R-021 |
+| 3 | 🟢 | Token codificado com `urlsafe_b64encode` gera 44 caracteres, não os 43 prometidos. | `secrets.token_urlsafe(32)`, base64url sem padding. | R-021 |
+| 4 | 🟢 | `X-Request-ID` do cliente propagado para os logs sem validação. | Só valores de até 64 caracteres entre letras, dígitos e hífen; nos demais casos, UUID gerado. | R-020 |
+
+Lição registrada: correções de uma auditoria também precisam de revisão, e metade dos achados da revisão estava justamente em regras escritas na auditoria.
