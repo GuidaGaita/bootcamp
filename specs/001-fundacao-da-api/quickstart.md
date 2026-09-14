@@ -82,13 +82,15 @@ Ao terminar: `docker compose down -v`.
 
 ## 6. Teste de fumaça (RNF-10)
 
+Com a porta 8000 livre, ou seja, depois do `docker compose down` do cenário 5:
+
 ```bash
-docker compose up -d --wait api
-docker compose run --rm -e SMOKE_BASE_URL=http://api:8000 tests pytest -m smoke --no-cov
-docker compose down -v
+uv sync
+uv run pytest -m smoke --no-cov
+docker compose -p cofre-smoke ps
 ```
 
-**Esperado:** 1 teste `smoke` aprovado.
+**Esperado:** os testes `smoke` passam (`/health`, `/docs`, UID não-root, persistência do volume e `reports/` gravado pelo serviço `tests`), e o último comando não lista containers, porque a stack `cofre-smoke` é removida ao final.
 
 ## 7. Sem Docker, inclusive no Windows (RNF-15)
 

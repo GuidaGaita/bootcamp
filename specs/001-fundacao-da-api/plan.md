@@ -123,7 +123,9 @@ tests/
 │   └── probe.py                # rotas de diagnóstico registradas só na suíte
 ├── unit/
 │   ├── test_architecture.py    # regra de dependência entre camadas
+│   ├── test_ci_workflow.py     # estrutura de .github/workflows/ci.yml
 │   ├── test_clock.py
+│   ├── test_contract_support.py
 │   ├── test_config.py
 │   ├── test_error_catalog.py
 │   ├── test_json_formatter.py
@@ -143,7 +145,8 @@ tests/
 │   ├── test_log_hygiene.py
 │   └── test_startup_guards.py
 └── smoke/
-    └── test_container_health.py
+    ├── conftest.py             # fixture compose_stack (projeto cofre-smoke)
+    └── test_compose_stack.py   # /health, /docs, UID, volume, reports
 ```
 
 **Structure Decision**: projeto único com layout `src/`, seguindo docs/03 §2.3. Nesta unidade existem só as camadas usadas pela fundação: não há `crypto/` (unidade 002) nem `tests/perf/` (primeiro teste `perf` na unidade 003). O plugin do harness e os utilitários de teste ficam em `tests/`, fora do pacote `cofre`: não entram na imagem de produção nem no cálculo do gate de cobertura, e a correção deles é garantida pelos testes de autoverificação `tests/unit/test_harness_*.py`.

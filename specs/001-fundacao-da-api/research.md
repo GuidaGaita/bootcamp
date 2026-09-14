@@ -174,10 +174,10 @@ Consolida as decisões técnicas da unidade 001. Cada item segue o formato *Deci
   - **Jobs:**
     1. `lint`: `astral-sh/setup-uv` com Python 3.13, `uv lock --check`, `uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`;
     2. `test` (depois de `lint`): `uv sync --locked`, `uv run pytest`, `actions/upload-artifact` de `reports/` com `if: always()`;
-    3. `docker` (depois de `test`): `docker compose build`, `docker compose up -d --wait api`, `docker compose run --rm -e SMOKE_BASE_URL=http://api:8000 tests pytest -m smoke --no-cov`, `docker compose run --rm tests` e `docker compose down -v` com `if: always()`.
+    3. `docker` (depois de `test`): `uv sync --locked`, `uv run pytest -m smoke --no-cov` (os testes sobem e removem a stack `cofre-smoke`, R21) e `docker compose run --rm tests`.
   - **Ações:** fixadas na última *tag* major disponível no momento da implementação.
   - **Proteção de branches:** depois do merge do PR que cria o workflow, os três jobs viram *status checks* obrigatórios em `main` e `develop` (docs/06 §6).
-- **Justificativa:** docs/07 §7 e FR-037; rodar `docker compose run --rm tests` no CI prova RNF-10 no mesmo caminho que o avaliador usa. O teste de fumaça roda dentro da rede do compose, sem precisar de `uv` no *runner* para esse passo.
+- **Justificativa:** docs/07 §7 e FR-037; rodar `docker compose run --rm tests` no CI prova RNF-10 no mesmo caminho que o avaliador usa. A estrutura do próprio workflow é verificada por `tests/unit/test_ci_workflow.py` (R21), para que o cenário 4 da US4 seja um teste automatizado, como exige o princípio III.
 - **Alternativas:** matriz com Windows no CI (dobra o tempo; RNF-15 aceita verificação local); job `perf` já nesta unidade (não há teste `perf`, e `pytest` sem testes coletados termina com código 5).
 
 ## R17. Lint e formatação
@@ -206,3 +206,23 @@ Consolida as decisões técnicas da unidade 001. Cada item segue o formato *Deci
 - **Decisão:** ao fim da Fase B, rodar `docker compose run --rm tests`, preencher `docs/relatorios/AAAA-MM-DD-incremento-1.md` com o modelo de `docs/relatorios/README.md` a partir de `reports/`, e apontar a seção *Evidências de execução* do README para ele.
 - **Justificativa:** docs/07 §6 e a Definição de Concluído de docs/05 §7.
 - **Alternativas:** gerar o relatório automaticamente (YAGNI; o formato é curto e muda pouco).
+
+## R21. Testes de fumaça e do workflow de CI
+
+- **Decisão:**
+  - **`tests/smoke/conftest.py`:** *fixture* de sessão `compose_stack` que executa `docker compose -p cofre-smoke up -d --build --wait api`, entrega `http://localhost:8000` e, no encerramento, executa `docker compose -p cofre-smoke down -v`. Se o Docker não estiver disponível, a *fixture* **falha**, sem pular o teste, para não produzir falso verde.
+  - **`tests/smoke/test_compose_stack.py`** (`smoke`), um teste por verificação:
+    - `/health` responde 200 e `/docs` responde 200;
+    - `docker compose -p cofre-smoke exec -T api id -u` não é `0`;
+    - após `docker compose -p cofre-smoke restart api`, `test -f /data/cofre.db` continua verdadeiro;
+    - `docker compose -p cofre-smoke run --rm tests pytest tests/unit/test_clock.py --no-cov` grava `reports/junit.xml` no host.
+  - **`tests/unit/test_ci_workflow.py`** (`unit`): lê `.github/workflows/ci.yml` com `pyyaml` e verifica:
+    - gatilhos `pull_request` e `push` para `develop` e `main`;
+    - jobs `lint`, `test` e `docker`, com `needs` em cadeia;
+    - comandos obrigatórios: `uv lock --check`, `ruff check`, `ruff format --check`, `pytest`, `pytest -m smoke` e `docker compose run --rm tests`;
+    - `upload-artifact` de `reports` com `if: always()`.
+- **Justificativa:** o princípio III exige que os cenários da US4 sejam testes automatizados com `req`. O nome de projeto `cofre-smoke` isola containers e volume do ambiente de desenvolvimento, de modo que `down -v` não apaga o banco local. docs/07 §2 já define o nível `smoke` com base em `docker compose`.
+- **Alternativas:**
+  - asserções em *shell* dentro do workflow: não têm marcador `req` e não rodam localmente;
+  - teste de fumaça só com HTTP: não verifica UID nem persistência;
+  - validar o workflow só pela execução no GitHub: a regressão só aparece depois do push.

@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-13
 
-**Status**: Rascunho
+**Status**: Em revisão
 
 **Versão**: 1.0.0
 
@@ -105,16 +105,14 @@ O avaliador clona o repositório e, com Docker, sobe a API e roda a suíte com u
 
 **Why this priority**: RNF-10 e RNF-11 são *Must* e fazem parte do critério de conclusão do incremento 1, mas dependem das histórias 1 a 3 para ter o que empacotar e verificar.
 
-**Independent Test**: Em máquina com Docker, executar `docker compose up --build` e chamar `/health`; executar `docker compose run --rm tests` e verificar `./reports`; abrir um PR de teste e verificar os jobs `lint`, `test` e `docker`.
+**Independent Test**: Rodar os testes `smoke`, que sobem a stack com Docker Compose num projeto isolado e verificam API, volume e serviço de testes, e o teste que valida a estrutura do workflow de CI. A execução real dos três jobs aparece no PR de implementação.
 
 **Acceptance Scenarios**:
 
-1. **Given** um clone limpo e Docker instalado, **When** o avaliador executa `docker compose up --build`, **Then** a API responde em `http://localhost:8000/health` com 200 e a Swagger UI em `/docs`, com o processo rodando como usuário não-root e o banco no volume `cofre-data`.
-2. **Given** um clone limpo e Docker instalado, **When** o avaliador executa `docker compose run --rm tests`, **Then** a suíte padrão roda no container e os artefatos aparecem em `./reports` no host.
-3. **Given** a API parada e reiniciada com `docker compose up`, **When** o banco já existia no volume, **Then** o arquivo do banco é preservado.
-4. **Given** um clone limpo com Python 3.13 e `uv`, **When** o mantenedor executa `uv sync` e `uv run pytest` em Windows, **Then** a suíte passa como no Linux.
-5. **Given** um PR para `develop` com erro de `ruff` ou teste falhando, **When** o CI roda, **Then** o job correspondente falha e o PR fica sinalizado como não mergeável.
-6. **Given** um PR para `develop` sem problemas, **When** o CI roda, **Then** os jobs `lint`, `test` e `docker` passam, e o job `test` publica `reports/` como artefato.
+1. **Given** um clone limpo e Docker instalado, **When** a stack sobe com `docker compose up --build`, **Then** a API responde em `http://localhost:8000/health` com 200 e serve a Swagger UI em `/docs`, com o processo rodando com UID diferente de 0.
+2. **Given** um clone limpo e Docker instalado, **When** o avaliador executa `docker compose run --rm tests`, **Then** a suíte roda no container e os artefatos aparecem em `./reports` no host.
+3. **Given** a API em execução com o banco criado no volume `cofre-data`, **When** o container da API é reiniciado, **Then** o arquivo do banco continua existindo no volume.
+4. **Given** o workflow de CI do repositório, **When** ele é avaliado para PRs e pushes em `develop` e `main`, **Then** executa, nesta ordem, `lint` (`ruff check`, `ruff format --check` e verificação do lock), `test` (suíte padrão com gate e publicação de `reports/` mesmo em falha) e `docker` (build, testes de fumaça e suíte no container), e a falha de qualquer job marca o check do PR como falho.
 
 ---
 
@@ -243,8 +241,8 @@ Casos adicionais desta spec:
 - **FR-033**: `docker compose run --rm tests` DEVE executar a suíte padrão em container e gravar os artefatos em `./reports` no host (RNF-10).
 - **FR-034**: As dependências DEVEM estar travadas em `uv.lock`; a imagem DEVE instalar exatamente as versões do lock, e o CI DEVE falhar se o lock estiver desatualizado em relação ao `pyproject.toml` (RNF-10).
 - **FR-035**: Sem Docker, `uv sync` seguido de `uv run pytest` ou do servidor com a fábrica DEVE funcionar com Python 3.13 em Windows, macOS e Linux (RNF-15).
-- **FR-036**: O teste de fumaça (marcador `smoke`) DEVE verificar que a API em container responde 200 em `/health` (RNF-10).
-- **FR-037**: O CI DEVE rodar em PRs e pushes para `develop` e `main` com os jobs `lint` (`ruff check`, `ruff format --check` e verificação do lock), `test` (suíte padrão com gate e publicação de `reports/` mesmo em falha) e `docker` (build da imagem, API no ar, teste de fumaça e suíte no container) (RNF-10, RNF-11).
+- **FR-036**: Os testes de fumaça (marcador `smoke`) DEVEM subir a stack com Docker Compose num projeto isolado do ambiente de desenvolvimento e verificar: `/health` com 200, `/docs` disponível, processo da API com UID diferente de 0, arquivo do banco preservado após reiniciar a API e artefatos gravados em `./reports` pelo serviço `tests` (RNF-10, RNF-15).
+- **FR-037**: O CI DEVE rodar em PRs e pushes para `develop` e `main` com os jobs `lint` (`ruff check`, `ruff format --check` e verificação do lock), `test` (suíte padrão com gate e publicação de `reports/` mesmo em falha) e `docker` (build da imagem, testes de fumaça e suíte no container); a estrutura do workflow (gatilhos, jobs, ordem e passos obrigatórios) DEVE ser verificada por teste automatizado (RNF-10, RNF-11).
 - **FR-038**: A configuração do `ruff` DEVE exigir *type hints* em funções públicas do pacote `cofre` e proibir o módulo `random` para valores de segurança (regra `S311`) (RNF-05, RNF-11).
 - **FR-039**: Ao concluir a Fase B, um relatório de execução do incremento 1 DEVE ser publicado em `docs/relatorios/` no modelo definido, e a seção de evidências do README DEVE apontar para ele (RNF-09).
 
@@ -269,7 +267,7 @@ Esta unidade não cria tabelas de domínio. As entidades são estruturas de conf
 - **SC-002**: **100%** das respostas de erro exercitadas pela suíte (404, 405, 422, 500 e 503) seguem o formato padronizado e validam contra o contrato.
 - **SC-003**: `/health` responde em menos de **1 segundo** em ambiente local, com o banco disponível e com o banco indisponível.
 - **SC-004**: Cobertura de linhas e ramificações do pacote `cofre` **≥ 85%** na suíte padrão.
-- **SC-005**: **100%** dos cenários de aceitação e casos de borda desta spec aparecem em `reports/rastreabilidade.md` associados a pelo menos um teste; nenhum requisito do escopo da unidade (RF-01, RNF-08 a RNF-11, RNF-13 a RNF-15) fica na seção "Requisitos Must sem teste".
+- **SC-005**: **100%** dos cenários de aceitação e casos de borda desta spec têm ao menos um teste marcado, e todos os requisitos do escopo da unidade (RF-01, RNF-08 a RNF-11, RNF-13 a RNF-15) aparecem em `reports/rastreabilidade.md` com pelo menos um teste aprovado.
 - **SC-006**: A suíte padrão termina em menos de **60 segundos** localmente e produz o mesmo resultado em **3 execuções consecutivas** e com ordem de testes aleatória.
 - **SC-007**: **Zero** ocorrências de valores marcadores sensíveis nos logs capturados pelos testes de higiene de log.
 - **SC-008**: Um PR com erro de lint ou teste falhando é sinalizado como falho pelo CI em **100%** dos casos; um PR correto passa nos três jobs.
@@ -281,8 +279,8 @@ Esta unidade não cria tabelas de domínio. As entidades são estruturas de conf
 - As fixtures de domínio de docs/07 §3.2 (`make_user`, `auth_client`, `auth_client_factory`, `make_credential`, `raw_database`) chegam com as unidades 002 e 003, que criam as entidades correspondentes.
 - O nível `perf` fica registrado e fora da execução padrão, mas não há testes de desempenho nesta unidade (RNF-12 é da unidade 003). O job manual de desempenho no CI entra junto com o primeiro teste `perf`.
 - Os *status checks* do CI passam a ser exigidos na proteção de `main` e `develop` depois do merge do PR que criar o workflow (docs/06 §6).
-- O teste de fumaça acessa a API em container pela rede local do Docker; isso não conta como rede externa.
-- A verificação em Windows (RNF-15) é manual, na máquina do mantenedor; o CI roda em Linux.
+- Os testes de fumaça controlam o Docker Compose da máquina, com projeto próprio (`cofre-smoke`) que é removido ao final, e acessam a API por `localhost:8000`, que precisa estar livre. Isso não conta como rede externa, e esses testes ficam fora da execução padrão.
+- A verificação em Windows (RNF-15) segue a coluna *Verificação* de docs/02, "uso local em Windows": o mantenedor roda `uv sync` e `uv run pytest` na própria máquina e registra o resultado no relatório de execução. O CI roda em Linux.
 - A aplicação não termina TLS e não aplica limites de tamanho de corpo nesta unidade (docs/04 §6).
 
 ## Histórico de revisões
