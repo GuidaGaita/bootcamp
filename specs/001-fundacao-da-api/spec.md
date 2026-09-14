@@ -241,7 +241,7 @@ Casos adicionais desta spec:
 
 - **FR-032**: `docker compose up` DEVE subir a API na porta 8000, com o processo como usuário não-root e o banco SQLite no volume `cofre-data` (RNF-10, RNF-15).
 - **FR-033**: `docker compose run --rm tests` DEVE executar a suíte padrão em container e gravar os artefatos em `./reports` no host (RNF-10).
-- **FR-034**: As dependências DEVEM estar travadas em `uv.lock`, e a instalação em container e no CI DEVE falhar se o lock estiver desatualizado (RNF-10).
+- **FR-034**: As dependências DEVEM estar travadas em `uv.lock`; a imagem DEVE instalar exatamente as versões do lock, e o CI DEVE falhar se o lock estiver desatualizado em relação ao `pyproject.toml` (RNF-10).
 - **FR-035**: Sem Docker, `uv sync` seguido de `uv run pytest` ou do servidor com a fábrica DEVE funcionar com Python 3.13 em Windows, macOS e Linux (RNF-15).
 - **FR-036**: O teste de fumaça (marcador `smoke`) DEVE verificar que a API em container responde 200 em `/health` (RNF-10).
 - **FR-037**: O CI DEVE rodar em PRs e pushes para `develop` e `main` com os jobs `lint` (`ruff check`, `ruff format --check` e verificação do lock), `test` (suíte padrão com gate e publicação de `reports/` mesmo em falha) e `docker` (build da imagem, API no ar, teste de fumaça e suíte no container) (RNF-10, RNF-11).
