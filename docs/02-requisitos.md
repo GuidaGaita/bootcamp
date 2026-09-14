@@ -98,7 +98,7 @@
 | RN-13 | **Paginação:** `limit` entre 1 e 100 (padrão 20) e `offset` ≥ 0; um `offset` além do total retorna lista vazia (não é erro). | RF-09, RF-10 |
 | RN-14 | Após **5 falhas consecutivas** de login para um mesmo e-mail normalizado, **cadastrado ou não**, novas tentativas são bloqueadas por **15 minutos** (HTTP 429). O comportamento é idêntico para e-mails inexistentes, para não revelar quais contas existem (RN-04). Um login bem-sucedido zera o contador. | RF-03, RN-04, RNF-07 |
 | RN-15 | A busca é **case-insensitive** por substring nos campos título, usuário e URL. | RF-10 |
-| RN-16 | Falhas na verificação da senha mestra em operações autenticadas (RF-06, RF-07) respondem **403** e contam no mesmo controle de tentativas de RN-14, pelo e-mail do usuário. Ao atingir o limite, a operação responde **429** e **todas as sessões do usuário são revogadas**, impedindo que um token roubado seja usado para adivinhar a senha mestra. | RF-06, RF-07, RN-14, RNF-07 |
+| RN-16 | Falhas na verificação da senha mestra em operações autenticadas (RF-06, RF-07) respondem **403** e contam no mesmo controle de tentativas de RN-14, pelo e-mail do usuário. A falha que **atinge o limite** também responde 403, bloqueia o e-mail por 15 minutos e **revoga todas as sessões do usuário**: a partir daí o token recebe 401 e o login recebe 429 até o fim do bloqueio. Se o e-mail já estiver bloqueado (por exemplo, por falhas de login enquanto há uma sessão ativa em outro dispositivo), RF-06 e RF-07 respondem **429** sem verificar a senha. Assim, um token roubado não serve para adivinhar a senha mestra. | RF-06, RF-07, RN-14, RNF-07 |
 
 ---
 
@@ -125,4 +125,4 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 | Versão | Data | Mudança | Origem |
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; RN-14 passa a valer para qualquer e-mail (R-007). | PR #1 |
-| 1.1.0 | 2026-09-13 | Nova RN-16 (força bruta da senha mestra com token); RN-01 com formato e tamanho; RN-02 com normalização NFKC; RN-08 inclui o relatório de saúde; RN-10 sem cláusula inalcançável; RN-11 com limite de entrada; RF-01 com 200/503; RNF-07, RNF-09 e RNF-12 ajustados. | Auditoria da documentação (R-008, R-009, R-012 a R-014, R-016) |
+| 1.1.0 | 2026-09-13 | Nova RN-16 (força bruta da senha mestra com token); RN-01 com formato e tamanho; RN-02 com normalização NFKC; RN-08 inclui o relatório de saúde; RN-10 sem cláusula inalcançável; RN-11 com limite de entrada; RF-01 com 200/503; RNF-07, RNF-09 e RNF-12 ajustados; RN-16 esclarecida na revisão do PR #3. | Auditoria da documentação (R-008, R-009, R-012 a R-014, R-016, R-019) |

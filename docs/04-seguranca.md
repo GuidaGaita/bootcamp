@@ -28,7 +28,7 @@
 | A8 | Aleatoriedade previsível | Uso de `random` para tokens ou senhas. | Uso exclusivo de `secrets`/`os.urandom`; regra `S311` do `ruff` habilitada. | RNF-05 |
 | A9 | Cache de respostas sensíveis | Proxy ou navegador armazena resposta com senha. | `Cache-Control: no-store` em todo `/api/v1`. | RNF-04 |
 | A10 | Dependência vulnerável | CVE em biblioteca usada. | Dependências travadas em `uv.lock`; auditoria com `pip-audit` no CI (*Could*). | — |
-| A11 | Adivinhação da senha mestra com token roubado | Quem tem um token válido tenta senhas em RF-06 ou RF-07 para descobrir a senha mestra, sem passar pelo login. | As falhas contam no controle de RN-14; ao atingir o limite, responde 429 e revoga todas as sessões do usuário, invalidando o token roubado. | RN-16, RNF-07 |
+| A11 | Adivinhação da senha mestra com token roubado | Quem tem um token válido tenta senhas em RF-06 ou RF-07 para descobrir a senha mestra, sem passar pelo login. | As falhas respondem 403 e contam no controle de RN-14; a falha que atinge o limite revoga todas as sessões do usuário, invalidando o token roubado, e bloqueia novas tentativas (429). | RN-16, RNF-07 |
 
 ## 3. Arquitetura criptográfica
 
@@ -58,7 +58,7 @@ flowchart TB
 | Hash da senha mestra (verificação) | Argon2id | m = 19.456 KiB, t = 2, p = 1, salt 16 bytes, saída 32 bytes (mínimo OWASP) | `argon2-cffi` (`PasswordHasher`) |
 | Derivação da KEK | Argon2id (raw) | mesmos custos, **salt independente** (`kdf_salt`, 16 bytes), saída 32 bytes | `argon2-cffi` (`hash_secret_raw`) |
 | Cifragem de credenciais e embrulho de chaves | AES-256-GCM | nonce 12 bytes aleatório **por operação**, tag 16 bytes | `cryptography` (`AESGCM`) |
-| Token de sessão | CSPRNG | 32 bytes aleatórios, transmitidos em base64url (43 caracteres) | `secrets.token_bytes(32)` + `base64.urlsafe_b64encode` |
+| Token de sessão | CSPRNG | 32 bytes aleatórios, transmitidos em base64url **sem padding** (43 caracteres); decodificados completando o padding | `secrets.token_urlsafe(32)` / `base64.urlsafe_b64decode` |
 | Localização da sessão | SHA-256 | sobre os **32 bytes** do token, depois de decodificar o base64url | `hashlib` |
 | Chave de sessão | HKDF-SHA256 | sobre os **32 bytes** do token, `info = b"cofre/session-key/v1"`, saída 32 bytes | `cryptography` |
 | Comparações de segredos | tempo constante | — | `hmac.compare_digest` |
@@ -93,7 +93,7 @@ O texto claro de uma credencial é o JSON UTF-8 `{"title", "username", "password
 | **Logout** (RF-04) | Remove a linha da sessão; o token deixa de funcionar imediatamente. |
 | **Alteração de senha mestra** (RF-06) | Verifica bloqueio (RN-16) → verifica senha atual (falha: 403 e contador incrementado) → valida RN-02 para a nova → novo `password_hash` → novo `kdf_salt` → nova KEK → **re-embrulha a mesma DEK** → zera o contador → remove **todas** as sessões. As credenciais não são recifradas. |
 | **Exclusão de conta** (RF-07) | Verifica bloqueio (RN-16) → verifica senha mestra (falha: 403 e contador incrementado) → remove usuário, sessões e credenciais em cascata. |
-| **Bloqueio por RN-16** | Ao atingir 5 falhas de senha mestra em RF-06/RF-07: responde 429 e remove **todas** as sessões do usuário. |
+| **Bloqueio por RN-16** | A falha de senha mestra que atinge o limite em RF-06/RF-07 responde 403, bloqueia o e-mail e remove **todas** as sessões do usuário. Com o e-mail já bloqueado, RF-06/RF-07 respondem 429 sem verificar a senha. |
 
 ## 5. Regras obrigatórias de implementação
 
@@ -124,4 +124,4 @@ O texto claro de uma credencial é o JSON UTF-8 `{"title", "username", "password
 | Versão | Data | Mudança | Origem |
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; bloqueio por e-mail em `login_throttles` (R-007). | PR #1 |
-| 1.1.0 | 2026-09-13 | Ameaça A11 e bloqueio de RF-06/RF-07 (RN-16); normalização NFKC; token processado como 32 bytes; formato único dos dados cifrados; novos riscos aceitos. | Auditoria da documentação (R-008, R-009, R-010, R-011) |
+| 1.1.0 | 2026-09-13 | Ameaça A11 e bloqueio de RF-06/RF-07 (RN-16); normalização NFKC; token processado como 32 bytes; formato único dos dados cifrados; novos riscos aceitos; momento do bloqueio da RN-16 e token em base64url sem padding. | Auditoria da documentação (R-008 a R-011, R-019, R-021) |
