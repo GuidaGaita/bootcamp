@@ -31,3 +31,5 @@ Registro das decisões arquiteturais do Cofre, no formato **MADR simplificado** 
 | [0012](0012-revisao-de-codigo-em-projeto-individual.md) | Revisão de código em projeto individual | Aceita | 2026-09-13 |
 | [0013](0013-harness-de-testes-com-pytest.md) | Harness de testes com pytest e rastreabilidade | Aceita | 2026-09-13 |
 | [0014](0014-ambiente-reprodutivel-com-docker.md) | Ambiente reprodutível com Docker Compose e GitHub Actions | Aceita | 2026-09-13 |
+| [0015](0015-borda-http-com-middleware-asgi-unico.md) | Borda HTTP com middleware ASGI único | Aceita | 2026-09-13 |
+| [0016](0016-testes-de-contrato-contra-openapi-da-spec.md) | Testes de contrato contra o OpenAPI da spec | Aceita | 2026-09-13 |

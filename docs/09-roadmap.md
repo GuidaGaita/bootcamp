@@ -1,6 +1,6 @@
 # 09 — Roadmap e Decomposição em Unidades
 
-> **Status:** Aprovado · **Versão:** 1.0.1 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.0.2 · **Última revisão:** 2026-09-13
 > Desenvolvimento incremental **sem datas fixas**. Cada incremento é um milestone no GitHub e funciona como uma iteração (sprint).
 
 ## 1. Incrementos
@@ -44,7 +44,8 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | Incremento | Situação |
 |------------|----------|
 | 0 — Documentação e governança | Concluído com o merge do [PR #1](https://github.com/GuidaGaita/bootcamp/pull/1) (release `v0.1.0`); auditoria da documentação na versão `v0.1.1` |
-| 1 a 5 | Planejado |
+| 1 — Fundação | Em andamento: spec da unidade 001 aprovada (Fase A); implementação (Fase B) pendente. Milestones e proteção de branches configurados |
+| 2 a 5 | Planejado |
 
 ## 4. Histórico de revisões
 
@@ -52,3 +53,4 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial. | PR #1 |
 | 1.0.1 | 2026-09-13 | RNF-14 e RNF-15 na unidade 001; RN-16 e `LoginThrottleRepository` na 002; RN-08 na 005; versões *patch* para correções de documentação. | Auditoria da documentação (R-016) |
+| 1.0.2 | 2026-09-13 | Situação do incremento 1: Fase A da unidade 001 concluída. | PR de spec da unidade 001 |

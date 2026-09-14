@@ -1,6 +1,6 @@
 # 03 — Arquitetura
 
-> **Status:** Aprovado · **Versão:** 1.1.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.2.0 · **Última revisão:** 2026-09-13
 > Descreve a arquitetura-alvo. O detalhamento de cada unidade (modelo de dados, contratos, pesquisa técnica) é produzido por `/speckit-plan` em `specs/NNN-*/`.
 
 ## 1. Visão de contexto
@@ -260,7 +260,8 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | 401 | `UNAUTHENTICATED` | Token ausente, malformado, expirado ou revogado. |
 | 401 | `INVALID_CREDENTIALS` | E-mail ou senha mestra incorretos no login (RN-04). |
 | 403 | `INVALID_MASTER_PASSWORD` | Senha mestra atual incorreta em operação autenticada (RF-06, RF-07). Não usa 401 para que o cliente não interprete a falha como sessão expirada (RN-16). |
-| 404 | `NOT_FOUND` | Recurso inexistente **ou pertencente a outro usuário** (RNF-03). |
+| 404 | `NOT_FOUND` | Recurso ou rota inexistente, **ou recurso pertencente a outro usuário** (RNF-03). |
+| 405 | `METHOD_NOT_ALLOWED` | Método HTTP não suportado numa rota existente (ex.: `POST /health`). |
 | 409 | `EMAIL_ALREADY_REGISTERED` | Cadastro com e-mail já existente. |
 | 409 | `VAULT_LIMIT_REACHED` | Limite de 1.000 credenciais atingido (RN-07). |
 | 422 | `VALIDATION_ERROR` | Entrada inválida, incluindo JSON malformado e violações de RN-01, RN-02, RN-06, RN-10, RN-11 e RN-13. |
@@ -274,3 +275,4 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; entidade `LOGIN_THROTTLES` (R-007). | PR #1 |
 | 1.1.0 | 2026-09-13 | Formato único `nonce ‖ texto cifrado ‖ tag` (remove a coluna `nonce`); erro 403 `INVALID_MASTER_PASSWORD` e 503 `SERVICE_UNAVAILABLE`; fábrica `create_app` com `--factory`; ordem do login (bloqueio antes da busca do usuário); diretórios `smoke/` e `perf/`; padrões de `create_app` e validação de `X-Request-ID`. | Auditoria da documentação (R-008, R-010, R-014 a R-016, R-020, R-021) |
+| 1.2.0 | 2026-09-13 | Código de erro 405 `METHOD_NOT_ALLOWED`; 404 também para rota inexistente. | Clarificação da spec 001 (R-022) |

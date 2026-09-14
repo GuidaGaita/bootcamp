@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incremento 0 concluído ([v0.1.0](https://github.com/GuidaGaita/bootcamp/releases/tag/v0.1.0)) · ainda sem código de aplicação · próximo: incremento 1, Fundação · [roadmap](docs/09-roadmap.md)
+**Status:** Incremento 1 (Fundação) em andamento · [spec da unidade 001](specs/001-fundacao-da-api/spec.md) aprovada, implementação pendente · ainda sem código de aplicação · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -185,6 +185,8 @@ Nenhuma execução registrada ainda: o harness de testes é entregue no incremen
 | [0012](docs/adr/0012-revisao-de-codigo-em-projeto-individual.md) | Revisão de código assistida por IA em projeto individual | Aceita |
 | [0013](docs/adr/0013-harness-de-testes-com-pytest.md) | Harness com pytest, marcador de rastreabilidade e gate de cobertura | Aceita |
 | [0014](docs/adr/0014-ambiente-reprodutivel-com-docker.md) | Ambiente reprodutível com Docker Compose e CI no GitHub Actions | Aceita |
+| [0015](docs/adr/0015-borda-http-com-middleware-asgi-unico.md) | Borda HTTP num middleware ASGI único: `X-Request-ID`, cabeçalhos, log JSON e erro 500 padronizado | Aceita |
+| [0016](docs/adr/0016-testes-de-contrato-contra-openapi-da-spec.md) | Testes de API validam respostas contra o `contracts/openapi.yaml` da spec | Aceita |
 
 ## Documentação
 
