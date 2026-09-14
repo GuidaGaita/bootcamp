@@ -75,7 +75,8 @@ Toda spec deve incluir, na seção *Edge Cases*, ao menos os casos aplicáveis d
 | `/health` com banco disponível / indisponível | 200 `{"status": "ok"}` / 503 `SERVICE_UNAVAILABLE` | RF-01 |
 | Rota inexistente; JSON malformado | 404 / 422, ambos no formato de erro padronizado | RNF-08, RNF-14 |
 | Qualquer resposta de `/api/v1` | Contém `Cache-Control: no-store` e `X-Request-ID` | RNF-04 |
-| Requisição com `X-Request-ID` informado pelo cliente | O mesmo valor é devolvido na resposta | RNF-13 |
+| Requisição com `X-Request-ID` válido (até 64 caracteres entre letras, dígitos e hífen) | O mesmo valor é devolvido na resposta e registrado no log | RNF-13 |
+| `X-Request-ID` com 65 caracteres, quebra de linha ou caractere fora do padrão | Substituído por um UUID v4 gerado; o valor original não aparece nos logs | RNF-04, RNF-13 |
 
 ### Unidade 002 — Contas e sessões
 
@@ -94,7 +95,8 @@ Toda spec deve incluir, na seção *Edge Cases*, ao menos os casos aplicáveis d
 | Token ausente, malformado (não é base64url ou não tem 32 bytes), expirado (31 min), após logout, após troca de senha mestra | 401 `UNAUTHENTICATED` | RN-05 |
 | Troca de senha mestra | Credenciais continuam legíveis com a nova senha; login com a senha antiga → 401 | RF-06 |
 | Troca de senha mestra ou exclusão de conta com senha atual errada | 403 `INVALID_MASTER_PASSWORD`; a sessão continua válida | RN-16 |
-| 5 falhas de senha atual em RF-06 com token válido | 429; todas as sessões do usuário revogadas (o token passa a receber 401) | RN-16 |
+| 5ª falha seguida de senha atual em RF-06 com token válido | 403; todas as sessões do usuário revogadas: o token passa a receber 401 e o login recebe 429 por 15 min | RN-16 |
+| RF-06 ou RF-07 com o e-mail já bloqueado por falhas de login, usando sessão ativa de outro dispositivo | 429 com `Retry-After`, sem verificar a senha | RN-16 |
 
 ### Unidade 003 — Cofre de credenciais
 
@@ -180,4 +182,4 @@ PRs só podem ser mergeados com o CI verde. O nível `perf` roda manualmente (`w
 | Versão | Data | Mudança | Origem |
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; fixture `auth_client_factory` e caso de borda do bloqueio para e-mail não cadastrado. | PR #1 |
-| 1.1.0 | 2026-09-13 | Nível `perf`; casos de borda das unidades 001 e 005; casos de NFKC, RN-16, formato de e-mail e token malformado; remoção do caso inalcançável "comprimento 3 com 4 conjuntos"; limite de entrada do avaliador. | Auditoria da documentação (R-008 a R-014, R-016) |
+| 1.1.0 | 2026-09-13 | Nível `perf`; casos de borda das unidades 001 e 005; casos de NFKC, RN-16, formato de e-mail e token malformado; remoção do caso inalcançável "comprimento 3 com 4 conjuntos"; limite de entrada do avaliador. | Auditoria da documentação (R-008 a R-014, R-016, R-019, R-020) |
