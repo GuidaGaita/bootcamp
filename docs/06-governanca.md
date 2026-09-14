@@ -125,6 +125,7 @@ Configuração-alvo para `main` e `develop`:
 | Exigir *status checks* (CI) | Sim, a partir do incremento 1 |
 | Exigir resolução de conversas | Sim |
 | Bloquear *force push* e exclusão | Sim |
+| Aplicar as regras também a administradores | Sim |
 
 **Situação atual** (aplicada via `gh api` no início do incremento 1):
 
@@ -136,7 +137,7 @@ Configuração-alvo para `main` e `develop`:
 | Regras valem também para administradores (`enforce_admins`) | ✅ | ✅ |
 | Exigir *status checks* (CI) | Pendente | Pendente |
 
-Os *status checks* entram na proteção no PR que criar o workflow de CI (Fase B da unidade 001), porque o GitHub só aceita como obrigatório um check que já tenha rodado.
+Os *status checks* (jobs `lint`, `test` e `docker`, [07-estrategia-de-testes.md §7](07-estrategia-de-testes.md#7-integração-contínua)) entram na proteção logo depois do merge do PR que criar o workflow de CI (Fase B da unidade 001). Exigir antes disso um check que ainda não existe deixaria todo PR bloqueado, à espera de um status que nunca chega.
 
 ## 7. Versionamento
 
