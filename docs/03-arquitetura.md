@@ -79,7 +79,7 @@ flowchart TB
 
 ```text
 src/cofre/
-├── main.py                 # create_app(settings, clock): fábrica da aplicação
+├── main.py                 # create_app(settings=None, clock=None): fábrica da aplicação
 │                           # (uvicorn cofre.main:create_app --factory)
 ├── core/                   # config.py, clock.py, errors.py, logging.py
 ├── api/
@@ -197,7 +197,7 @@ Os fluxos de cadastro, alteração de senha mestra e exclusão estão descritos 
 | Aspecto | Decisão |
 |---------|---------|
 | Configuração | Variáveis de ambiente com prefixo `COFRE_` via `pydantic-settings` (lista em [08-ambiente-e-agentes.md](08-ambiente-e-agentes.md#3-variáveis-de-ambiente)). |
-| Inicialização | `create_app(settings, clock)` é a única forma de montar a aplicação: o Uvicorn a usa com `--factory` e os testes a chamam com configuração e relógio de teste. Nada é lido do ambiente na importação do módulo. |
+| Inicialização | `create_app(settings=None, clock=None)` é a única forma de montar a aplicação. Sem argumentos, como o Uvicorn a chama com `--factory`, lê `Settings` do ambiente e usa o relógio do sistema; os testes passam configuração e relógio de teste. Nada é lido do ambiente na importação do módulo. |
 | Tempo | `Clock` injetável em `core`, que permite testar expiração de sessão e bloqueio sem `sleep`. |
 | Aleatoriedade | Fonte injetável baseada em `secrets`, substituível apenas em testes unitários do gerador. |
 | Transações | Uma sessão de banco por requisição; o *service* confirma ou desfaz a unidade de trabalho. |
@@ -239,7 +239,7 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 - Autenticação: `Authorization: Bearer <token>`.
 - Respostas paginadas: `{"items": [...], "total": 42, "limit": 20, "offset": 0}`.
 - Todas as respostas de `/api/v1` levam `Cache-Control: no-store`.
-- Toda resposta leva `X-Request-ID` (gerado ou propagado).
+- Toda resposta leva `X-Request-ID`. O valor recebido do cliente só é propagado se tiver até 64 caracteres entre letras, dígitos e hífen; nos demais casos, gera-se um UUID v4. Isso impede injeção de conteúdo nos logs.
 
 ### 6.3 Formato de erro padronizado
 
@@ -273,4 +273,4 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | Versão | Data | Mudança | Origem |
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; entidade `LOGIN_THROTTLES` (R-007). | PR #1 |
-| 1.1.0 | 2026-09-13 | Formato único `nonce ‖ texto cifrado ‖ tag` (remove a coluna `nonce`); erro 403 `INVALID_MASTER_PASSWORD` e 503 `SERVICE_UNAVAILABLE`; fábrica `create_app` com `--factory`; ordem do login (bloqueio antes da busca do usuário); diretórios `smoke/` e `perf/`. | Auditoria da documentação (R-008, R-010, R-014 a R-016) |
+| 1.1.0 | 2026-09-13 | Formato único `nonce ‖ texto cifrado ‖ tag` (remove a coluna `nonce`); erro 403 `INVALID_MASTER_PASSWORD` e 503 `SERVICE_UNAVAILABLE`; fábrica `create_app` com `--factory`; ordem do login (bloqueio antes da busca do usuário); diretórios `smoke/` e `perf/`; padrões de `create_app` e validação de `X-Request-ID`. | Auditoria da documentação (R-008, R-010, R-014 a R-016, R-020, R-021) |
