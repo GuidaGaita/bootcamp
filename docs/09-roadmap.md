@@ -41,5 +41,5 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 
 | Incremento | Situação |
 |------------|----------|
-| 0 — Documentação e governança | Em andamento |
+| 0 — Documentação e governança | Concluído com o merge do [PR #1](https://github.com/GuidaGaita/bootcamp/pull/1) (release `v0.1.0`) |
 | 1 a 5 | Planejado |
