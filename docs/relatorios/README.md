@@ -8,7 +8,7 @@ Nenhuma execução registrada ainda. O harness de testes é entregue no **increm
 
 ## Quando publicar
 
-- Ao concluir cada incremento (obrigatório).
+- Ao concluir cada incremento a partir do incremento 1 (obrigatório). O incremento 0 não tem código nem testes.
 - Em PRs de implementação que alterem comportamento de segurança (recomendado).
 
 ## Nome do arquivo

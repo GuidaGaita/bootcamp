@@ -6,6 +6,7 @@
 | **ADR** (*Architecture Decision Record*) | Registro curto de uma decisão arquitetural: contexto, decisão, alternativas e consequências. Ver [adr/](adr/README.md). |
 | **AES-256-GCM** | Algoritmo de cifragem autenticada: garante confidencialidade e detecta qualquer alteração no texto cifrado. |
 | **Argon2id** | Função de derivação de chave e hash de senhas resistente a ataques com GPU. Usada para verificar a senha mestra e derivar a KEK. |
+| **Bloqueio de login** (*throttling*) | Suspensão temporária de tentativas de autenticação após falhas consecutivas para um mesmo e-mail (RN-14, RN-16). |
 | **Caso de borda** (*edge case*) | Situação nos limites do comportamento esperado (valores mínimos e máximos, entradas vazias, estados inválidos). |
 | **Cofre** | Nome do produto e também o conjunto de credenciais de um usuário. |
 | **Constituição** | Documento do Spec Kit com os princípios inegociáveis do projeto (`.specify/memory/constitution.md`). |
@@ -20,6 +21,7 @@
 | **Incremento** | Etapa do roadmap que entrega valor verificável e corresponde a um milestone e a uma versão. |
 | **KEK** (*Key Encryption Key*) | Chave derivada da senha mestra que cifra a DEK. Nunca é armazenada. |
 | **MoSCoW** | Priorização em *Must*, *Should*, *Could* e *Won't*. |
+| **NFKC** | Forma de normalização Unicode que unifica representações equivalentes de um mesmo texto (ex.: "é" pré-composto e "e" seguido de acento combinante). Aplicada à senha mestra (RN-02). |
 | **Nonce** | Valor aleatório único por operação de cifragem. Nunca se repete para a mesma chave. |
 | **Refinamento** | Alteração registrada na especificação motivada por testes, revisões ou implementação. |
 | **SDD** (*Specification-Driven Development*) | Desenvolvimento em que a especificação é a fonte da verdade e o código deriva dela. |

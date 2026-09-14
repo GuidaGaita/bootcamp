@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incremento 0 — documentação e governança · ainda sem código de aplicação · [roadmap](docs/09-roadmap.md)
+**Status:** Incremento 0 concluído ([v0.1.0](https://github.com/GuidaGaita/bootcamp/releases/tag/v0.1.0)) · ainda sem código de aplicação · próximo: incremento 1, Fundação · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -121,7 +121,7 @@ docker compose run --rm tests      # suíte completa; relatórios em ./reports
 
 # Sem Docker
 uv sync
-uv run uvicorn cofre.main:app --reload
+uv run uvicorn cofre.main:create_app --factory --reload
 uv run pytest
 ```
 

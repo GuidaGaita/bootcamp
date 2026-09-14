@@ -12,7 +12,7 @@ A entrega exige um harness que valide a aplicação conforme a especificação, 
 ## Decisão
 
 - **pytest** + **pytest-cov** como base, com configuração em `pyproject.toml` e `--strict-markers`.
-- **Marcadores de nível:** `unit`, `integration`, `api`, `security`, `smoke`.
+- **Marcadores de nível:** `unit`, `integration`, `api`, `security`, `smoke` e `perf`; os dois últimos ficam fora da execução padrão.
 - **Marcador de rastreabilidade** `@pytest.mark.req("RF-xx", ...)`, obrigatório em testes de aceitação e de borda. Um *hook* valida o formato dos IDs e gera `reports/rastreabilidade.md`.
 - **Determinismo:** `FakeClock` injetável e parâmetros de Argon2id reduzidos apenas com `COFRE_ENV=test`.
 - **Gate:** cobertura de linhas e *branches* ≥ 85% no pacote `cofre`.

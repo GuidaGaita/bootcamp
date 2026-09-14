@@ -1,6 +1,6 @@
 # 06 — Governança do Repositório
 
-> **Status:** Aprovado · **Versão:** 1.0.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.0.1 · **Última revisão:** 2026-09-13
 > Decisões relacionadas: [ADR-0011](adr/0011-fluxo-git.md) (fluxo Git) e [ADR-0012](adr/0012-revisao-de-codigo-em-projeto-individual.md) (revisão de código).
 
 ## 1. Branches
@@ -69,7 +69,7 @@ Commits produzidos com apoio do Claude Code incluem o rodapé `Co-Authored-By: C
 
 - Todo PR sai de uma branch de trabalho e segue para `develop`. Releases e hotfixes seguem para `main`.
 - **Título** no formato Conventional Commits. **Descrição** pelo [template](../.github/pull_request_template.md).
-- Vincular a issue (`Closes #N`) e o milestone do incremento.
+- Vincular a issue (`Closes #N`) e o milestone do incremento, quando existirem.
 - PRs pequenos e focados: uma fase de uma unidade por PR.
 - **Estratégia de merge: merge commit** (`gh pr merge --merge --delete-branch`), que preserva os commits e o histórico da revisão. Sem *squash* e sem *rebase* em `develop`/`main`.
 
@@ -80,7 +80,7 @@ Commits produzidos com apoio do Claude Code incluem o rodapé `Co-Authored-By: C
 3. Revisão concluída conforme a seção 4, com todos os comentários respondidos.
 4. Nenhuma conversa pendente no PR.
 
-**Release:** PR `develop → main` intitulado `release: vX.Y.Z`, com as notas da versão. Após o merge: `git tag vX.Y.Z` e GitHub Release.
+**Release:** PR `develop → main` intitulado `release: vX.Y.Z`, com as notas da versão. Após o merge: tag `vX.Y.Z` e GitHub Release. Correções só de documentação entre incrementos geram versão *patch* (ex.: `v0.1.1`).
 
 ## 4. Revisão de código em projeto individual
 
@@ -91,24 +91,24 @@ O projeto tem um único mantenedor, e o GitHub não permite aprovar o próprio P
 | 1. Autorrevisão | Autor | Checklist do template marcado. |
 | 2. Revisão assistida por IA | Claude Code: `/code-review` em PRs de código (com `--comment`, publica os achados como comentários de linha); revisão dirigida em PRs de documentação; `/security-review` quando o PR toca `crypto`, autenticação ou sessões | Comentários de revisão no PR. |
 | 3. Tratamento | Autor | Cada comentário é **corrigido** (com o commit referenciado na resposta) ou **justificado**. |
-| 4. Merge | Autor | Somente com todos os comentários tratados. |
+| 4. Merge | Autor | Somente com todos os comentários tratados e as conversas resolvidas. |
 
 > Se outra pessoa entrar no projeto, a proteção de branch passa a exigir **1 aprovação humana**, e a revisão por IA continua como etapa complementar.
 
 ## 5. Issues e GitHub Projects
 
-**Board "Cofre":** `Backlog` → `Pronto` → `Em andamento` → `Em revisão` → `Concluído`.
+**Board "Cofre"** *(criado no início do incremento 1)*: `Backlog` → `Pronto` → `Em andamento` → `Em revisão` → `Concluído`.
 
 **Templates de issue** ([`.github/ISSUE_TEMPLATE/`](../.github/ISSUE_TEMPLATE/)):
 
 | Template | Uso |
 |----------|-----|
 | Unidade | Épico de uma unidade do roadmap: requisitos cobertos, fases, critérios de conclusão. |
-| Tarefa | Tarefa independente, geralmente criada por `/speckit-taskstoissues`. |
+| Tarefa | Tarefa independente de `tasks.md`, criada por `/speckit-taskstoissues` (requer o servidor MCP do GitHub) ou por `gh issue create`. |
 | Bug | Comportamento divergente da spec. |
 | Mudança de especificação | Refinamento por feedback ([05-processo-sdd.md](05-processo-sdd.md#5-refinamento-por-feedback)). |
 
-**Labels:** `tipo:unidade`, `tipo:spec`, `tipo:tarefa`, `tipo:bug`, `tipo:docs`, `tipo:infra`, `spec-change`, `prioridade:must`, `prioridade:should`, `prioridade:could`, `unidade:001` … `unidade:005`.
+**Labels** (já criadas no repositório): `tipo:unidade`, `tipo:spec`, `tipo:tarefa`, `tipo:bug`, `tipo:docs`, `tipo:infra`, `spec-change`, `prioridade:must`, `prioridade:should`, `prioridade:could`, `unidade:001` … `unidade:005`.
 
 **Milestones = incrementos** do [roadmap](09-roadmap.md). Cada milestone delimita o escopo de uma iteração (sprint sem data fixa).
 
@@ -130,4 +130,11 @@ Configuração-alvo para `main` e `develop`:
 
 ## 7. Versionamento
 
-[SemVer](https://semver.org/lang/pt-BR/). Durante o MVP a versão fica em `0.x`; cada incremento concluído incrementa o *minor* (ver [09-roadmap.md](09-roadmap.md)). `v1.0.0` marca todos os requisitos *Must* implementados.
+[SemVer](https://semver.org/lang/pt-BR/). Durante o MVP a versão fica em `0.x`; cada incremento concluído incrementa o *minor* (ver [09-roadmap.md](09-roadmap.md)) e correções entre incrementos incrementam o *patch*. `v1.0.0` marca todos os requisitos *Must* implementados.
+
+## 8. Histórico de revisões
+
+| Versão | Data | Mudança | Origem |
+|--------|------|---------|--------|
+| 1.0.0 | 2026-09-13 | Versão inicial. | PR #1 |
+| 1.0.1 | 2026-09-13 | Situação do board e das labels; alternativa `gh` para issues de tarefa; versão *patch* para correções entre incrementos; resolução de conversas antes do merge. | Auditoria da documentação |
