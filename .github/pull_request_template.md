@@ -23,7 +23,7 @@ Closes #
 
 ## Checklist do autor
 
-- [ ] Respeita a [constituição](../.specify/memory/constitution.md) e a spec aprovada: nenhum comportamento fora da spec.
+- [ ] Respeita a constituição (`.specify/memory/constitution.md`) e a spec aprovada: nenhum comportamento fora da spec.
 - [ ] Mudanças de comportamento registradas no *Histórico de revisões* da spec e em `docs/registro-de-refinamentos.md`.
 - [ ] Testes escritos antes da implementação, marcados com `@pytest.mark.req`.
 - [ ] Suíte verde, cobertura ≥ 85% e `ruff` limpo.

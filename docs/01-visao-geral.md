@@ -1,6 +1,6 @@
 # 01 — Visão Geral e Definição do Problema
 
-> **Status:** Aprovado · **Versão:** 1.0.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.0.1 · **Última revisão:** 2026-09-13
 > Documento de nível de projeto. As specs por unidade (`specs/NNN-*/spec.md`) derivam daqui e de [02-requisitos.md](02-requisitos.md).
 
 ## 1. O problema
@@ -77,6 +77,6 @@ Falta um lugar **único, confiável e cifrado** onde cada pessoa guarde suas cre
 |----|----------|----------------|
 | CS-01 | 100% dos requisitos *Must* implementados. | Matriz de rastreabilidade em [02-requisitos.md](02-requisitos.md) sem lacunas. |
 | CS-02 | Nenhum dado de credencial ou senha mestra em texto claro no banco. | Teste automatizado de segurança que inspeciona o arquivo SQLite. |
-| CS-03 | Cobertura de testes ≥ 85% das linhas do pacote `cofre`. | Gate de cobertura no CI. |
+| CS-03 | Cobertura de testes ≥ 85% de linhas e ramificações (*branch coverage*) do pacote `cofre`. | Gate de cobertura no CI. |
 | CS-04 | Ambiente sobe com um único comando. | `docker compose up` em máquina limpa. |
 | CS-05 | Todo comportamento implementado tem origem em uma spec aprovada. | Revisão de PR + marcadores `req` nos testes. |
