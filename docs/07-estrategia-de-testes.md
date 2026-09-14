@@ -39,6 +39,7 @@
 | `app`, `client` | Aplicação criada por `create_app(settings, clock)` e `TestClient`. |
 | `make_user` | Cadastra um usuário e devolve e-mail e senha mestra. |
 | `auth_client` | Cliente HTTP já autenticado com um token válido. |
+| `auth_client_factory` | Cria quantos clientes autenticados forem necessários, cada um com um usuário diferente (testes de isolamento, RNF-03). |
 | `make_credential` | Cria credenciais via API para o usuário do `auth_client`. |
 | `raw_database` | Acesso direto ao arquivo SQLite, para os testes de segurança inspecionarem bytes armazenados. |
 
@@ -75,6 +76,7 @@ Toda spec deve incluir, na seção *Edge Cases*, ao menos os casos aplicáveis d
 | Senha mestra que contém o e-mail | 422 | RN-02 |
 | Login com e-mail inexistente vs. senha errada | Mesmo status, `code` e mensagem | RN-04 |
 | 5 falhas seguidas e depois a senha correta | 429 com `Retry-After`; após 15 min (relógio) → 201 | RN-14 |
+| 5 falhas seguidas com e-mail **não cadastrado** | 6ª tentativa → 429 com `Retry-After`, idêntico ao de um e-mail cadastrado | RN-04, RN-14 |
 | Falhas intercaladas com um login bem-sucedido | Contador zera; sem bloqueio | RN-14 |
 | Token ausente, malformado, expirado (31 min), após logout, após troca de senha mestra | 401 `UNAUTHENTICATED` | RN-05 |
 | Troca de senha mestra | Credenciais continuam legíveis com a nova senha; senha antiga → 401 | RF-06 |
