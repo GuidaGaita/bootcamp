@@ -1,6 +1,6 @@
 # 02 — Requisitos e Regras de Negócio
 
-> **Status:** Aprovado · **Versão:** 1.1.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.1.1 · **Última revisão:** 2026-09-13
 > Catálogo de nível de projeto. Cada spec do Spec Kit (`specs/NNN-*/spec.md`) detalha os requisitos da sua unidade em `FR-xxx`, sempre referenciando os IDs deste documento.
 
 ## Convenções
@@ -108,12 +108,13 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 
 | Requisito | Unidade | Spec | Testes | Status |
 |-----------|---------|------|--------|--------|
-| RF-01 | 001 | — | — | Planejado |
+| RF-01 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | — | Especificado |
 | RF-02 .. RF-07 | 002 | — | — | Planejado |
 | RF-08 .. RF-13 | 003 | — | — | Planejado |
 | RF-14, RF-15 | 004 | — | — | Planejado |
 | RF-16 | 005 | — | — | Planejado |
-| RNF-01 .. RNF-15 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
+| RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | — | Especificado |
+| RNF-01 .. RNF-07, RNF-12 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
 | RN-01 .. RN-16 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
 
 **Legenda de status:** Planejado → Especificado (spec aprovada) → Implementado (testes verdes) → Revisado (houve refinamento registrado).
@@ -126,3 +127,4 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; RN-14 passa a valer para qualquer e-mail (R-007). | PR #1 |
 | 1.1.0 | 2026-09-13 | Nova RN-16 (força bruta da senha mestra com token); RN-01 com formato e tamanho; RN-02 com normalização NFKC; RN-08 inclui o relatório de saúde; RN-10 sem cláusula inalcançável; RN-11 com limite de entrada; RF-01 com 200/503; RNF-07, RNF-09 e RNF-12 ajustados; RN-16 esclarecida na revisão do PR #3. | Auditoria da documentação (R-008, R-009, R-012 a R-014, R-016, R-019) |
+| 1.1.1 | 2026-09-13 | Matriz de rastreabilidade: RF-01, RNF-08 a RNF-11 e RNF-13 a RNF-15 como Especificado pela spec 001. | PR de spec da unidade 001 |

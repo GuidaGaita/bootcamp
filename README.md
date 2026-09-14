@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incremento 0 concluído ([v0.1.0](https://github.com/GuidaGaita/bootcamp/releases/tag/v0.1.0)) · ainda sem código de aplicação · próximo: incremento 1, Fundação · [roadmap](docs/09-roadmap.md)
+**Status:** Incremento 1 (Fundação) em andamento · [spec da unidade 001](specs/001-fundacao-da-api/spec.md) aprovada, implementação pendente · ainda sem código de aplicação · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
