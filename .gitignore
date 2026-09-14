@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+build/
+dist/
+
+# Ferramentas
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Relatórios gerados localmente (os relatórios oficiais ficam em docs/relatorios/)
+reports/
+
+# Dados locais e segredos
+*.db
+*.sqlite3
+data/
+.env
+.env.*
+!.env.example
+
+# Claude Code (configurações pessoais)
+.claude/settings.local.json
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/settings.json
