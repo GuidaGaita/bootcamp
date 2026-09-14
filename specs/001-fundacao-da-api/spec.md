@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-13
 
-**Status**: Em revisão
+**Status**: Aprovada
 
 **Versão**: 1.0.0
 
@@ -287,4 +287,4 @@ Esta unidade não cria tabelas de domínio. As entidades são estruturas de conf
 
 | Versão | Data | Mudança | Motivo | Origem |
 |--------|------|---------|--------|--------|
-| 1.0.0 | 2026-09-13 | Versão inicial | — | PR de spec da unidade 001 |
+| 1.0.0 | 2026-09-13 | Versão aprovada | — | [PR #7](https://github.com/GuidaGaita/bootcamp/pull/7) |
