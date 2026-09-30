@@ -183,7 +183,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 ### Tests for User Story 4 ⚠️
 
-- [ ] T037 [P] [US4] Escrever os testes da US4 (research R21), cobrindo US4 cenários 1–4 e FR-036 e FR-037:
+- [X] T037 [P] [US4] Escrever os testes da US4 (research R21), cobrindo US4 cenários 1–4 e FR-036 e FR-037:
   - **`tests/smoke/conftest.py`:** *fixture* de sessão `compose_stack` com `docker compose -p cofre-smoke up -d --build --wait api` e `down -v` no encerramento; falha, sem pular, se o Docker não estiver disponível.
   - **`tests/smoke/test_compose_stack.py`** (marcador `smoke`):
     - `/health` responde 200 com `{"status": "ok"}` e `X-Request-ID` (`req("RF-01", "RNF-10")`);
@@ -199,18 +199,18 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 ### Implementation for User Story 4
 
-- [ ] T038 [P] [US4] Criar `Dockerfile` e `.dockerignore` (research R15). O `.dockerignore` exclui `.git`, `.venv`, `reports`, `data`, `__pycache__`, `.pytest_cache`, `.ruff_cache` e `.claude`. Estágios do `Dockerfile`:
+- [X] T038 [P] [US4] Criar `Dockerfile` e `.dockerignore` (research R15). O `.dockerignore` exclui `.git`, `.venv`, `reports`, `data`, `__pycache__`, `.pytest_cache`, `.ruff_cache` e `.claude`. Estágios do `Dockerfile`:
   - `base`: `python:3.13-slim` com o binário do `uv` copiado de `ghcr.io/astral-sh/uv` numa versão fixa, e `UV_COMPILE_BYTECODE=1`, `UV_LINK_MODE=copy`;
   - `build`: `uv sync --frozen --no-dev --no-install-project` só com `pyproject.toml` e `uv.lock`, depois `src/` e `uv sync --frozen --no-dev`;
   - `runtime`: usuário `cofre` UID 10001, `/data` do usuário, `EXPOSE 8000`, `HEALTHCHECK` com `python -c` e `urllib` em `/health`, `CMD ["uvicorn", "cofre.main:create_app", "--factory", "--host", "0.0.0.0", "--port", "8000", "--no-access-log"]`;
-  - `test`: `uv sync --frozen` com o grupo `dev`, cópia de `tests/`, `specs/` e `docs/02-requisitos.md`, `PATH` com `/app/.venv/bin`, `CMD ["pytest"]`.
+  - `test`: `uv sync --frozen` com o grupo `dev`, cópia de `tests/`, `specs/`, `docs/02-requisitos.md` e `.github/workflows/` (refinamento R-024), `PATH` com `/app/.venv/bin`, `CMD ["pytest"]`.
 
   Cobre FR-032, FR-033 e FR-034.
-- [ ] T039 [US4] Criar `docker-compose.yml` (research R15), cobrindo FR-032 e FR-033:
+- [X] T039 [US4] Criar `docker-compose.yml` (research R15), cobrindo FR-032 e FR-033:
   - serviço `api`: `target: runtime`, `ports: ["8000:8000"]`, `COFRE_ENV=production`, `COFRE_DATABASE_URL=sqlite:////data/cofre.db`, volume `cofre-data:/data` e `healthcheck`;
   - serviço `tests`: `target: test`, `profiles: ["tests"]`, `COFRE_ENV=test`, volume `./reports:/app/reports` e `user: root`, justificado em comentário;
   - volume nomeado `cofre-data`.
-- [ ] T040 [P] [US4] Criar `.github/workflows/ci.yml` (research R16; FR-034, FR-037):
+- [X] T040 [P] [US4] Criar `.github/workflows/ci.yml` (research R16; FR-034, FR-037):
   - gatilhos `pull_request` e `push` para `develop` e `main`;
   - `permissions: contents: read` e `concurrency` com `cancel-in-progress`;
   - job `lint`: `astral-sh/setup-uv` com Python 3.13, `uv lock --check`, `uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`;

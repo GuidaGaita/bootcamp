@@ -1,0 +1,42 @@
+# Ambiente padronizado do Cofre (research R15).
+#   docker compose up --build        -> API em http://localhost:8000/docs
+#   docker compose run --rm tests    -> suíte completa, relatórios em ./reports
+
+services:
+  api:
+    build:
+      context: .
+      target: runtime
+    ports:
+      - "8000:8000"
+    environment:
+      COFRE_ENV: production
+      COFRE_DATABASE_URL: sqlite:////data/cofre.db
+    volumes:
+      - cofre-data:/data
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import sys, urllib.request; sys.exit(urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2).status != 200)"
+      interval: 10s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+
+  tests:
+    build:
+      context: .
+      target: test
+    profiles: ["tests"]
+    environment:
+      COFRE_ENV: test
+    volumes:
+      - ./reports:/app/reports
+    # Só o estágio de testes roda como root: evita falha de permissão ao escrever no
+    # bind mount ./reports em hosts Linux com outro UID. Este estágio nunca é implantado.
+    user: root
+
+volumes:
+  cofre-data:
