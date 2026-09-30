@@ -445,3 +445,9 @@ Enquanto a cobertura total não atinge 85% nas primeiras fases, use `--no-cov` p
 - Commit por tarefa ou grupo lógico, em Conventional Commits com descrição em pt-BR.
 - Pare em cada *checkpoint* para validar a história de forma independente.
 - Divergência encontrada durante a implementação: pare, atualize primeiro a spec (*Histórico de revisões* + `docs/registro-de-refinamentos.md`) e só então testes e código.
+
+---
+
+## Phase 10: Convergence
+
+- [X] T056 Isolar as fixtures `settings`/`make_settings` de `tests/conftest.py` das variáveis `COFRE_*` do ambiente do desenvolvedor, com teste que exporta `COFRE_LOG_LEVEL=WARNING` e confirma o valor padrão na fixture, per FR-029 (partial)

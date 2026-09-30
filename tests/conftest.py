@@ -13,6 +13,14 @@ def sqlite_url(path) -> str:
     return f"sqlite:///{path.as_posix()}"
 
 
+class IsolatedSettings(Settings):
+    """Settings built only from explicit values: COFRE_* from the shell never leak in."""
+
+    @classmethod
+    def settings_customise_sources(cls, settings_cls, init_settings, **_sources):
+        return (init_settings,)
+
+
 def make_settings(tmp_path, **overrides) -> Settings:
     values = {
         "env": "test",
@@ -22,7 +30,7 @@ def make_settings(tmp_path, **overrides) -> Settings:
         "argon2_parallelism": 1,
     }
     values.update(overrides)
-    return Settings(**values)
+    return IsolatedSettings(**values)
 
 
 @pytest.fixture
