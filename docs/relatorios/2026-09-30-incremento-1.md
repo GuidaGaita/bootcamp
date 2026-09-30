@@ -14,6 +14,8 @@
 |------:|---------:|---------:|--------:|--------:|----------:|
 | 155 | 155 | 0 | 0 | 11,95 s | 96,18% |
 
+Depois desta execução, a convergência acrescentou 1 teste (T056): a suíte local passou a ter **156 testes, todos aprovados**.
+
 Os 5 testes `smoke` ficam fora da seleção padrão e rodam à parte (`uv run pytest -m smoke --no-cov`): **5 passaram** em 19,6 s.
 
 ## Por nível
@@ -107,6 +109,7 @@ Tempo de `/health` (SC-003, meta < 1 s): 3,6 ms no container e 15,6 ms localment
 | 3 | `reports/pytest-output.log` com códigos de cor ANSI | Leitura do log gerado | A cópia remove as sequências de escape. Teste novo com `--color=yes`. |
 | 4 | Código morto no plugin de rastreabilidade: *hook* que lia `report.config`, atributo inexistente | Revisão do código gerado pela IA antes do commit | *Hook* removido; o registro de resultados ficou numa classe ligada ao `config`. |
 | 5 | Caractere de controle ESC literal gravado no código-fonte no lugar de `\x1b` | Revisão do diff | Uma edição automatizada via *shell* interpretou o escape. Arquivo corrigido e verificado com `grep`. |
+| 6 | Fixture `settings` herdava variáveis `COFRE_*` do shell do desenvolvedor (ex.: `COFRE_LOG_LEVEL=WARNING` quebrava os testes de log) | `/speckit-converge` (FR-029), confirmado por teste vermelho | O `pydantic-settings` lê o ambiente mesmo com argumentos explícitos e em `model_validate`; a primeira correção proposta (`model_validate`) também falhou no teste. A solução foi a subclasse de teste `IsolatedSettings`, com `settings_customise_sources` restrito aos argumentos (T056). |
 
 **Cobertura abaixo de 100%:**
 
