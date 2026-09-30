@@ -1,6 +1,6 @@
 # 06 — Governança do Repositório
 
-> **Status:** Aprovado · **Versão:** 1.0.2 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.0.3 · **Última revisão:** 2026-09-30
 > Decisões relacionadas: [ADR-0011](adr/0011-fluxo-git.md) (fluxo Git) e [ADR-0012](adr/0012-revisao-de-codigo-em-projeto-individual.md) (revisão de código).
 
 ## 1. Branches
@@ -127,7 +127,7 @@ Configuração-alvo para `main` e `develop`:
 | Bloquear *force push* e exclusão | Sim |
 | Aplicar as regras também a administradores | Sim |
 
-**Situação atual** (aplicada via `gh api` no início do incremento 1):
+**Situação atual** (aplicada via `gh api` no início do incremento 1; *status checks* acrescentados em 2026-09-30, depois do merge do [PR #63](https://github.com/GuidaGaita/bootcamp/pull/63)):
 
 | Regra | `main` | `develop` |
 |-------|:------:|:---------:|
@@ -135,9 +135,9 @@ Configuração-alvo para `main` e `develop`:
 | Exigir resolução de conversas | ✅ | ✅ |
 | Bloquear *force push* e exclusão | ✅ | ✅ |
 | Regras valem também para administradores (`enforce_admins`) | ✅ | ✅ |
-| Exigir *status checks* (CI) | Pendente | Pendente |
+| Exigir *status checks* `lint`, `test` e `docker` (GitHub Actions), sem exigir branch atualizada (`strict: false`) | ✅ | ✅ |
 
-Os *status checks* (jobs `lint`, `test` e `docker`, [07-estrategia-de-testes.md §7](07-estrategia-de-testes.md#7-integração-contínua)) entram na proteção logo depois do merge do PR que criar o workflow de CI (Fase B da unidade 001). Exigir antes disso um check que ainda não existe deixaria todo PR bloqueado, à espera de um status que nunca chega.
+Os *status checks* são os jobs `lint`, `test` e `docker` do workflow de CI ([07-estrategia-de-testes.md §7](07-estrategia-de-testes.md#7-integração-contínua)). Eles só entraram na proteção depois do merge do PR que criou o workflow, porque exigir antes um check inexistente bloquearia todo PR. `strict: false` dispensa atualizar a branch com a base antes do merge: com merge commit e um único mantenedor, a exigência só acrescentaria *rebases* sem ganho de segurança, já que o CI roda de novo no *push* para `develop` e `main`.
 
 ## 7. Versionamento
 
@@ -150,3 +150,4 @@ Os *status checks* (jobs `lint`, `test` e `docker`, [07-estrategia-de-testes.md 
 | 1.0.0 | 2026-09-13 | Versão inicial. | PR #1 |
 | 1.0.1 | 2026-09-13 | Situação do board e das labels; alternativa `gh` para issues de tarefa; versão *patch* para correções entre incrementos; resolução de conversas antes do merge. | Auditoria da documentação |
 | 1.0.2 | 2026-09-13 | Proteção de `main` e `develop` aplicada (sem *status checks* até existir CI); milestones criados. | Início do incremento 1 |
+| 1.0.3 | 2026-09-30 | *Status checks* `lint`, `test` e `docker` exigidos em `main` e `develop`. | T055 da unidade 001 |
