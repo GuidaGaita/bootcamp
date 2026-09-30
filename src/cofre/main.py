@@ -7,6 +7,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 import cofre
+from cofre.api.errors import register_error_handlers
+from cofre.api.middleware import RequestContextMiddleware
+from cofre.api.routers import health
 from cofre.core.clock import Clock, SystemClock
 from cofre.core.config import Settings
 from cofre.repositories.database import build_engine, build_session_factory, init_schema
@@ -40,4 +43,8 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
     app.state.clock = clock
     app.state.engine = engine
     app.state.session_factory = build_session_factory(engine)
+
+    register_error_handlers(app)
+    app.include_router(health.router)
+    app.add_middleware(RequestContextMiddleware)
     return app

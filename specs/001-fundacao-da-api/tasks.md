@@ -68,21 +68,21 @@ Projeto único, layout `src/` (plan.md §Project Structure): código em `src/cof
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T016 [P] [US1] Escrever `tests/api/test_health.py` (marcador `api`, `req("RF-01")`), com todas as respostas validadas por `assert_response_matches`:
+- [X] T016 [P] [US1] Escrever `tests/api/test_health.py` (marcador `api`, `req("RF-01")`), com todas as respostas validadas por `assert_response_matches`:
   - 200 com corpo exato `{"status": "ok"}` sem cabeçalho `Authorization`;
   - 503 `SERVICE_UNAVAILABLE` com `COFRE_DATABASE_URL` apontando para `tmp_path` (diretório), sem o caminho do banco, `sqlite`, `Traceback` nem nome de exceção no corpo;
   - aplicação iniciada com o banco indisponível sobe e responde 503;
   - recuperação sem reinício: o diretório pai do banco começa como arquivo (503), o teste o troca por diretório e a próxima chamada responde 200.
 
   Cobre US1 cenários 1–4 e FR-001 a FR-003.
-- [ ] T017 [P] [US1] Escrever `tests/integration/test_health_service.py` (marcador `integration`, `req("RF-01")`): `HealthService.check()` retorna `HealthStatus.OK` com banco acessível e lança `ServiceUnavailableError` com banco inacessível (FR-002, FR-003)
+- [X] T017 [P] [US1] Escrever `tests/integration/test_health_service.py` (marcador `integration`, `req("RF-01")`): `HealthService.check()` retorna `HealthStatus.OK` com banco acessível e lança `ServiceUnavailableError` com banco inacessível (FR-002, FR-003)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Implementar `CofreError(code: str, status: int)` e `ServiceUnavailableError` (`code="SERVICE_UNAVAILABLE"`, `status=503`) em `src/cofre/core/errors.py`, sem dependência de outras camadas (research R5)
-- [ ] T019 [US1] Implementar `HealthStatus` e `HealthService(engine)` com `check()` em `src/cofre/services/health.py`, sem importar FastAPI/Starlette, até T017 passar (FR-002, FR-003)
-- [ ] T020 [US1] Implementar `ErrorResponse`, `ErrorBody` e `ValidationDetail` em `src/cofre/api/schemas/errors.py` (`details` opcional, lista não vazia de `{field, issue}`) e, em `src/cofre/api/errors.py`, o catálogo `code → (status, message)` com os textos da tabela *Códigos usados na unidade 001* de data-model.md e o handler de `CofreError` que monta o corpo padronizado sem `details` (FR-005)
-- [ ] T021 [US1] Implementar `HealthResponse` em `src/cofre/api/schemas/health.py`, a dependência `get_health_service` em `src/cofre/api/deps.py` e o roteador `GET /health` em `src/cofre/api/routers/health.py` (fora de `/api/v1`, respostas 200 `HealthResponse` e 503 `ErrorResponse` declaradas no OpenAPI), incluídos em `create_app` com o handler de T020, até T016 passar (FR-001, FR-002, FR-004)
+- [X] T018 [US1] Implementar `CofreError(code: str, status: int)` e `ServiceUnavailableError` (`code="SERVICE_UNAVAILABLE"`, `status=503`) em `src/cofre/core/errors.py`, sem dependência de outras camadas (research R5)
+- [X] T019 [US1] Implementar `HealthStatus` e `HealthService(engine)` com `check()` em `src/cofre/services/health.py`, sem importar FastAPI/Starlette, até T017 passar (FR-002, FR-003)
+- [X] T020 [US1] Implementar `ErrorResponse`, `ErrorBody` e `ValidationDetail` em `src/cofre/api/schemas/errors.py` (`details` opcional, lista não vazia de `{field, issue}`) e, em `src/cofre/api/errors.py`, o catálogo `code → (status, message)` com os textos da tabela *Códigos usados na unidade 001* de data-model.md e o handler de `CofreError` que monta o corpo padronizado sem `details` (FR-005)
+- [X] T021 [US1] Implementar `HealthResponse` em `src/cofre/api/schemas/health.py`, a dependência `get_health_service` em `src/cofre/api/deps.py` e o roteador `GET /health` em `src/cofre/api/routers/health.py` (fora de `/api/v1`, respostas 200 `HealthResponse` e 503 `ErrorResponse` declaradas no OpenAPI), incluídos em `create_app` com o handler de T020, até T016 passar (FR-001, FR-002, FR-004). **Refinamento R-023:** cria também `RequestContextMiddleware` em `src/cofre/api/middleware.py` só com a escolha do `request_id` (regra de R11, função `choose_request_id`) e o cabeçalho `X-Request-ID` em toda resposta, porque o contrato o exige nas respostas validadas por T016 e T022; T027 e T051 estendem o mesmo middleware
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -296,7 +296,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 - [ ] T050 [US6] Implementar `src/cofre/core/logging.py` com `JsonFormatter` (uma linha JSON; campos extras permitidos `timestamp`, `event`, `request_id`, `method`, `route`, `status`, `duration_ms`, `error_type`, `stack`; nunca `record.msg` com dados de requisição) e `configure_logging()` idempotente sobre o logger `cofre` com `StreamHandler(stdout)`, até T047 passar (research R10)
 - [ ] T051 [US6] Estender `RequestContextMiddleware` em `src/cofre/api/middleware.py`, até T046, T048 e T049 passarem. Cobre research R4, R10 e R11 e FR-011 a FR-016:
-  - escolher o `request_id` sobre os cabeçalhos brutos do `scope` (exatamente um `x-request-id` que case `[A-Za-z0-9-]{1,64}` em ASCII, senão `uuid4`) e guardá-lo em `scope["state"]`;
+  - (já feito em T021 pelo refinamento R-023) escolher o `request_id` sobre os cabeçalhos brutos do `scope` (exatamente um `x-request-id` que case `[A-Za-z0-9-]{1,64}` em ASCII, senão `uuid4`) e guardá-lo em `scope["state"]`;
   - acrescentar `X-Request-ID` a toda resposta;
   - medir `duration_ms` com `time.perf_counter`;
   - emitir o registro `request` com `timestamp` do relógio da aplicação e `route` de `scope["route"].path` ou `None`, só se o nível configurado da aplicação permitir INFO;

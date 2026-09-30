@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from cofre.core.clock import Clock
 from cofre.core.config import Settings
+from cofre.services.health import HealthService
 
 
 def get_settings(request: Request) -> Settings:
@@ -23,3 +24,7 @@ def get_db(request: Request) -> Iterator[Session]:
         yield session
     finally:
         session.close()
+
+
+def get_health_service(request: Request) -> HealthService:
+    return HealthService(request.app.state.engine)
