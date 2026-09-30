@@ -1,0 +1,43 @@
+"""Application factory (FR-017, FR-022)."""
+
+import logging
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI
+
+import cofre
+from cofre.core.clock import Clock, SystemClock
+from cofre.core.config import Settings
+from cofre.repositories.database import build_engine, build_session_factory, init_schema
+
+logger = logging.getLogger("cofre")
+
+
+def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:
+    """Build an independent application; reads the environment only when ``settings`` is None."""
+    if settings is None:
+        settings = Settings()
+    if clock is None:
+        clock = SystemClock()
+
+    engine = build_engine(settings.database_url)
+
+    @asynccontextmanager
+    async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+        try:
+            init_schema(engine, settings.database_url)
+        except Exception as exc:  # the app must start without a database
+            logger.error(
+                "database_init_failed",
+                extra={"event": "database_init_failed", "error_type": type(exc).__name__},
+            )
+        yield
+        engine.dispose()
+
+    app = FastAPI(title="Cofre API", version=cofre.__version__, lifespan=lifespan)
+    app.state.settings = settings
+    app.state.clock = clock
+    app.state.engine = engine
+    app.state.session_factory = build_session_factory(engine)
+    return app
