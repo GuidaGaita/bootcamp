@@ -96,7 +96,7 @@ Projeto único, layout `src/` (plan.md §Project Structure): código em `src/cof
 
 ### Tests for User Story 2 ⚠️
 
-- [ ] T022 [P] [US2] Escrever `tests/api/test_errors.py` (marcador `api`, `req("RNF-08", "RNF-14")`; os casos de valor não ecoado e do 500 também com `"RNF-04"`), com todas as respostas validadas por `assert_response_matches(component=...)`:
+- [X] T022 [P] [US2] Escrever `tests/api/test_errors.py` (marcador `api`, `req("RNF-08", "RNF-14")`; os casos de valor não ecoado e do 500 também com `"RNF-04"`), com todas as respostas validadas por `assert_response_matches(component=...)`:
   - `GET /api/v1/rota-inexistente` → 404 `NOT_FOUND`;
   - `POST /health` → 405 `METHOD_NOT_ALLOWED` com cabeçalho `Allow: GET`;
   - `POST /api/v1/_probe/echo` com corpo `{"name": ` → 422 com `details == [{"field": "body", "issue": "JSON malformado."}]`;
@@ -105,9 +105,9 @@ Projeto único, layout `src/` (plan.md §Project Structure): código em `src/cof
   - `GET /api/v1/_probe/boom` → 500 `INTERNAL_ERROR` sem `MARCADOR-EXCECAO`, `RuntimeError` nem `Traceback` no corpo.
 
   Cobre US2 cenários 1–4 e FR-005 a FR-009.
-- [ ] T023 [P] [US2] Escrever `tests/api/test_headers.py` (marcador `api`, `req("RNF-04", "RNF-08")`): `Cache-Control: no-store` nas respostas 404 de `/api/v1` e `/api/v1/rota-inexistente`, 422 de `/api/v1/_probe/echo` e 500 de `/api/v1/_probe/boom`, e na resposta 405 de `DELETE /api/v1/_probe/echo`; `/api/v10/x` e `/health` **não** são obrigados a tê-lo (o teste só verifica que o prefixo não casa `/api/v10`) (FR-010)
-- [ ] T024 [P] [US2] Escrever `tests/api/test_openapi.py` (marcador `api`, `req("RNF-08")`): `GET /openapi.json` retorna documento com `openapi` iniciando por `3.`, `info.title == "Cofre API"` e, para cada operação e status de `contracts/openapi.yaml`, a mesma operação e status; `GET /docs` retorna 200 HTML (US2 cenário 5; FR-004)
-- [ ] T025 [P] [US2] Escrever `tests/unit/test_error_catalog.py` (marcador `unit`, `req("RNF-14", "RNF-04")`), com a função de mapeamento de erros do Pydantic:
+- [X] T023 [P] [US2] Escrever `tests/api/test_headers.py` (marcador `api`, `req("RNF-04", "RNF-08")`): `Cache-Control: no-store` nas respostas 404 de `/api/v1` e `/api/v1/rota-inexistente`, 422 de `/api/v1/_probe/echo` e 500 de `/api/v1/_probe/boom`, e na resposta 405 de `DELETE /api/v1/_probe/echo`; `/api/v10/x` e `/health` **não** são obrigados a tê-lo (o teste só verifica que o prefixo não casa `/api/v10`) (FR-010)
+- [X] T024 [P] [US2] Escrever `tests/api/test_openapi.py` (marcador `api`, `req("RNF-08")`): `GET /openapi.json` retorna documento com `openapi` iniciando por `3.`, `info.title == "Cofre API"` e, para cada operação e status de `contracts/openapi.yaml`, a mesma operação e status; `GET /docs` retorna 200 HTML (US2 cenário 5; FR-004)
+- [X] T025 [P] [US2] Escrever `tests/unit/test_error_catalog.py` (marcador `unit`, `req("RNF-14", "RNF-04")`), com a função de mapeamento de erros do Pydantic:
   - todo `code` do catálogo pertence ao enum `ErrorCode` do contrato e tem mensagem não vazia;
   - `("body", 12)` com tipo `json_invalid` → `field="body"`;
   - `("body", "name")` com tipo `missing` → `field="name"` e `"Campo obrigatório."`;
@@ -119,17 +119,17 @@ Projeto único, layout `src/` (plan.md §Project Structure): código em `src/cof
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Estender `src/cofre/api/errors.py`, até T022 (exceto o 500) e T025 passarem:
+- [X] T026 [US2] Estender `src/cofre/api/errors.py`, até T022 (exceto o 500) e T025 passarem:
   - handler de `StarletteHTTPException`: 404 → `NOT_FOUND`; 405 → `METHOD_NOT_ALLOWED`, preservando os cabeçalhos da exceção (`Allow`); status fora do catálogo → 500 `INTERNAL_ERROR` com log ERROR;
   - handler de `RequestValidationError` → 422 `VALIDATION_ERROR`, com `details` gerado pela função de mapeamento: localização sem o primeiro segmento quando ele é `body`, `query`, `path`, `header` ou `cookie`; `body` para `json_invalid` ou quando não sobra segmento; tabela *Textos de issue* de data-model.md.
 
   Cobre research R5.
-- [ ] T027 [US2] Implementar `RequestContextMiddleware` como middleware ASGI puro em `src/cofre/api/middleware.py`, registrado em `create_app` como o mais externo entre os de usuário, até T022 (500) e T023 passarem. Nesta etapa ele:
+- [X] T027 [US2] Implementar `RequestContextMiddleware` como middleware ASGI puro em `src/cofre/api/middleware.py`, registrado em `create_app` como o mais externo entre os de usuário, até T022 (500) e T023 passarem. Nesta etapa ele:
   - intercepta `http.response.start` para acrescentar `Cache-Control: no-store` quando `path == "/api/v1"` ou começa por `"/api/v1/"`;
   - captura exceções não tratadas e envia 500 `INTERNAL_ERROR` padronizado, com o mesmo acréscimo de cabeçalho, sem relançar.
 
   Cobre research R4 e R12, ADR-0015, FR-008 e FR-010.
-- [ ] T028 [US2] Declarar a resposta 503 com `ErrorResponse` e a descrição de `/health` no roteador e ajustar os metadados do OpenAPI em `create_app` até T024 passar (FR-004)
+- [X] T028 [US2] Declarar a resposta 503 com `ErrorResponse` e a descrição de `/health` no roteador e ajustar os metadados do OpenAPI em `create_app` até T024 passar (FR-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

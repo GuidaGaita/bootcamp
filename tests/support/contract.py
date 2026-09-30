@@ -10,13 +10,12 @@ from jsonschema import Draft202012Validator
 from referencing import Registry, Resource
 from referencing.jsonschema import DRAFT202012
 
-CONTRACT_PATH = (
-    Path(__file__).resolve().parents[2] / "specs" / "001-fundacao-da-api" / "contracts" / "openapi.yaml"
-)
+REPO_ROOT = Path(__file__).resolve().parents[2]
+CONTRACT_PATH = REPO_ROOT / "specs" / "001-fundacao-da-api" / "contracts" / "openapi.yaml"
 CONTRACT_URI = "urn:cofre:contract"
 
 
-class ContractViolation(AssertionError):
+class ContractViolationError(AssertionError):
     """The response does not match the contract."""
 
 
@@ -43,10 +42,11 @@ def _deref(node: dict[str, Any]) -> dict[str, Any]:
 def _rebase(schema: Any) -> Any:
     """Point local ``#/...`` references at the contract document."""
     if isinstance(schema, dict):
-        return {
-            key: (CONTRACT_URI + value if key == "$ref" and value.startswith("#") else _rebase(value))
-            for key, value in schema.items()
-        }
+        rebased = {key: _rebase(value) for key, value in schema.items()}
+        ref = schema.get("$ref")
+        if isinstance(ref, str) and ref.startswith("#"):
+            rebased["$ref"] = CONTRACT_URI + ref
+        return rebased
     if isinstance(schema, list):
         return [_rebase(item) for item in schema]
     return schema
@@ -61,7 +61,7 @@ def _response_spec(
     method, path = operation
     responses = contract["paths"][path][method.lower()]["responses"]
     if str(status) not in responses:
-        raise ContractViolation(f"status {status} não declarado para {method.upper()} {path}")
+        raise ContractViolationError(f"status {status} não declarado para {method.upper()} {path}")
     return _deref(responses[str(status)])
 
 
@@ -81,11 +81,11 @@ def assert_response_matches(
         value = response.headers.get(name)
         if value is None:
             if header.get("required"):
-                raise ContractViolation(f"cabeçalho obrigatório ausente: {name}")
+                raise ContractViolationError(f"cabeçalho obrigatório ausente: {name}")
             continue
         errors = list(Draft202012Validator(header.get("schema", {})).iter_errors(value))
         if errors:
-            raise ContractViolation(f"cabeçalho {name} inválido: {errors[0].message}")
+            raise ContractViolationError(f"cabeçalho {name} inválido: {errors[0].message}")
 
     content = spec.get("content", {}).get("application/json")
     if content is None:
@@ -93,4 +93,4 @@ def assert_response_matches(
     validator = Draft202012Validator(_rebase(content["schema"]), registry=_registry())
     errors = sorted(validator.iter_errors(response.json()), key=lambda error: error.path)
     if errors:
-        raise ContractViolation("; ".join(error.message for error in errors))
+        raise ContractViolationError("; ".join(error.message for error in errors))

@@ -45,9 +45,7 @@ def test_health_returns_503_without_internal_details(tmp_path, clock):
 def test_app_starts_with_unavailable_database_and_answers_503(tmp_path, clock):
     blocker = tmp_path / "blocked"
     blocker.write_text("not a directory", encoding="utf-8")
-    app = create_app(
-        make_settings(tmp_path, database_url=sqlite_url(blocker / "cofre.db")), clock
-    )
+    app = create_app(make_settings(tmp_path, database_url=sqlite_url(blocker / "cofre.db")), clock)
 
     with TestClient(app) as client:
         response = client.get("/health")

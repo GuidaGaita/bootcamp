@@ -1,7 +1,7 @@
 import httpx
 import pytest
 
-from tests.support.contract import ContractViolation, assert_response_matches
+from tests.support.contract import ContractViolationError, assert_response_matches
 
 pytestmark = [pytest.mark.unit, pytest.mark.req("RNF-08")]
 
@@ -17,14 +17,14 @@ def test_accepts_valid_health_response():
 
 
 def test_rejects_extra_field():
-    with pytest.raises(ContractViolation):
+    with pytest.raises(ContractViolationError):
         assert_response_matches(
             _response(200, {"status": "ok", "version": "1"}), operation=("get", "/health")
         )
 
 
 def test_rejects_undeclared_status():
-    with pytest.raises(ContractViolation):
+    with pytest.raises(ContractViolationError):
         assert_response_matches(_response(418, {"status": "ok"}), operation=("get", "/health"))
 
 
@@ -35,35 +35,36 @@ def test_accepts_service_unavailable_via_response_ref():
 
 
 def test_rejects_details_outside_validation_error():
-    body = {"error": {"code": "NOT_FOUND", "message": "x", "details": [{"field": "a", "issue": "b"}]}}
+    details = [{"field": "a", "issue": "b"}]
+    body = {"error": {"code": "NOT_FOUND", "message": "x", "details": details}}
 
-    with pytest.raises(ContractViolation):
+    with pytest.raises(ContractViolationError):
         assert_response_matches(_response(404, body), component="NotFound")
 
 
 def test_requires_details_on_validation_error():
     body = {"error": {"code": "VALIDATION_ERROR", "message": "x"}}
 
-    with pytest.raises(ContractViolation):
+    with pytest.raises(ContractViolationError):
         assert_response_matches(_response(422, body), component="ValidationError")
 
 
 def test_rejects_code_different_from_component():
     body = {"error": {"code": "INTERNAL_ERROR", "message": "x"}}
 
-    with pytest.raises(ContractViolation):
+    with pytest.raises(ContractViolationError):
         assert_response_matches(_response(404, body), component="NotFound")
 
 
 def test_fails_when_required_header_is_missing():
-    with pytest.raises(ContractViolation, match="X-Request-ID"):
+    with pytest.raises(ContractViolationError, match="X-Request-ID"):
         assert_response_matches(
             _response(200, {"status": "ok"}, headers={}), operation=("get", "/health")
         )
 
 
 def test_rejects_header_violating_schema():
-    with pytest.raises(ContractViolation, match="X-Request-ID"):
+    with pytest.raises(ContractViolationError, match="X-Request-ID"):
         assert_response_matches(
             _response(200, {"status": "ok"}, headers={"X-Request-ID": "a b"}),
             operation=("get", "/health"),

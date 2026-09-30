@@ -38,7 +38,16 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
         yield
         engine.dispose()
 
-    app = FastAPI(title="Cofre API", version=cofre.__version__, lifespan=lifespan)
+    app = FastAPI(
+        title="Cofre API",
+        version=cofre.__version__,
+        summary="API REST multiusuário de gerenciamento de senhas.",
+        description=(
+            "Erros seguem o formato padronizado de docs/03 §6.3. Toda resposta traz "
+            "`X-Request-ID`, e as respostas sob `/api/v1` trazem `Cache-Control: no-store`."
+        ),
+        lifespan=lifespan,
+    )
     app.state.settings = settings
     app.state.clock = clock
     app.state.engine = engine

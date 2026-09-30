@@ -16,7 +16,16 @@ router = APIRouter(tags=["health"])
     "/health",
     response_model=HealthResponse,
     summary="Verifica se a aplicação e o banco estão operacionais.",
-    responses={503: {"model": ErrorResponse, "description": "Banco de dados indisponível."}},
+    description=(
+        "Público e fora de `/api/v1`. Verifica o banco a cada chamada, sem cache. "
+        "Não expõe versões, caminho do banco nem detalhes internos."
+    ),
+    responses={
+        503: {
+            "model": ErrorResponse,
+            "description": "O banco de dados não respondeu à verificação de saúde.",
+        }
+    },
 )
 def get_health(service: Annotated[HealthService, Depends(get_health_service)]) -> HealthResponse:
     return HealthResponse(status=service.check())
