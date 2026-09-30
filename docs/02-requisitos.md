@@ -108,12 +108,12 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 
 | Requisito | Unidade | Spec | Testes | Status |
 |-----------|---------|------|--------|--------|
-| RF-01 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | — | Especificado |
+| RF-01 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [test_health.py](../tests/api/test_health.py), [test_health_service.py](../tests/integration/test_health_service.py) | Implementado |
 | RF-02 .. RF-07 | 002 | — | — | Planejado |
 | RF-08 .. RF-13 | 003 | — | — | Planejado |
 | RF-14, RF-15 | 004 | — | — | Planejado |
 | RF-16 | 005 | — | — | Planejado |
-| RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | — | Especificado |
+| RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [tests/](../tests/) (mapa completo em `reports/rastreabilidade.md` e no [relatório do incremento 1](relatorios/2026-09-30-incremento-1.md)) | Implementado |
 | RNF-01 .. RNF-07, RNF-12 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
 | RN-01 .. RN-16 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
 

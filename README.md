@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incremento 1 (Fundação) em andamento · [spec da unidade 001](specs/001-fundacao-da-api/spec.md) aprovada, implementação pendente · ainda sem código de aplicação · [roadmap](docs/09-roadmap.md)
+**Status:** Incremento 1 (Fundação) implementado · [unidade 001](specs/001-fundacao-da-api/spec.md) com `/health`, contrato de erros, configuração segura, logs JSON, harness de testes, Docker e CI · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -33,7 +33,7 @@ Detalhes em [docs/01-visao-geral.md](docs/01-visao-geral.md).
 
 | Funcionalidade | Requisitos | Prioridade | Status |
 |----------------|------------|------------|--------|
-| Verificação de saúde da API | RF-01 | Must | Planejado |
+| Verificação de saúde da API | RF-01 | Must | Implementado |
 | Cadastro, login e logout com sessão de 30 min | RF-02, RF-03, RF-04 | Must | Planejado |
 | Consulta de conta e alteração de senha mestra | RF-05, RF-06 | Should | Planejado |
 | Exclusão de conta | RF-07 | Could | Planejado |
@@ -165,7 +165,7 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Nenhuma execução registrada ainda: o harness de testes é entregue no incremento 1. Os relatórios serão publicados em [docs/relatorios/](docs/relatorios/README.md), e esta seção passará a apontar para o mais recente.
+Relatório mais recente: [incremento 1 (2026-09-30)](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
 
