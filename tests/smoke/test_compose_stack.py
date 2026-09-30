@@ -1,3 +1,4 @@
+import os
 import time
 
 import httpx
@@ -47,8 +48,14 @@ def test_database_survives_container_recreation(compose_stack):
 def test_tests_service_writes_reports_to_host(compose_stack):
     junit = REPO_ROOT / "reports" / "junit.xml"
     started = time.time()
+    # On Linux hosts, run as the host user: files written as root into the bind mount would
+    # block this very pytest session from rewriting reports/ when it finishes.
+    user = [f"--user={os.getuid()}:{os.getgid()}"] if hasattr(os, "getuid") else []
 
-    compose("run", "--rm", "--build", "tests", "pytest", "tests/unit/test_clock.py", "--no-cov")
+    compose(
+        "run", "--rm", "--build", *user, "tests",
+        "pytest", "tests/unit/test_clock.py", "--no-cov", "-p", "no:cacheprovider",
+    )  # fmt: skip
 
     assert junit.is_file()
     assert junit.stat().st_mtime >= started - 1
