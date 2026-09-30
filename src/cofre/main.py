@@ -12,10 +12,8 @@ from cofre.api.middleware import RequestContextMiddleware
 from cofre.api.routers import health
 from cofre.core.clock import Clock, SystemClock
 from cofre.core.config import Settings, load_settings
-from cofre.core.logging import LOGGER_NAME, configure_logging
+from cofre.core.logging import configure_logging, log_event
 from cofre.repositories.database import build_engine, build_session_factory, init_schema
-
-logger = logging.getLogger(LOGGER_NAME)
 
 
 def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:
@@ -33,9 +31,12 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
         try:
             init_schema(engine, settings.database_url)
         except Exception as exc:  # the app must start without a database
-            logger.error(
+            log_event(
+                settings.log_level,
+                clock,
+                logging.ERROR,
                 "database_init_failed",
-                extra={"event": "database_init_failed", "error_type": type(exc).__name__},
+                error_type=type(exc).__name__,
             )
         yield
         engine.dispose()

@@ -10,9 +10,7 @@ from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from cofre.api.errors import error_response
-from cofre.core.logging import LOGGER_NAME, format_stack
-
-logger = logging.getLogger(LOGGER_NAME)
+from cofre.core.logging import format_stack, log_event
 
 REQUEST_ID_HEADER = b"x-request-id"
 _REQUEST_ID_PATTERN = re.compile(r"[A-Za-z0-9-]{1,64}", re.ASCII)
@@ -89,8 +87,5 @@ class RequestContextMiddleware:
 
     @staticmethod
     def _log(scope: Scope, level: int, event: str, **fields: object) -> None:
-        """Emit only if the application's configured level allows it (FR-022)."""
         state = scope["app"].state
-        if level < logging.getLevelName(state.settings.log_level):
-            return
-        logger.log(level, event, extra={"event": event, "timestamp": state.clock.now(), **fields})
+        log_event(state.settings.log_level, state.clock, level, event, **fields)

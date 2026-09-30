@@ -14,7 +14,7 @@
 |------:|---------:|---------:|--------:|--------:|----------:|
 | 155 | 155 | 0 | 0 | 11,95 s | 96,18% |
 
-Depois desta execução, a convergência acrescentou 1 teste (T056): a suíte local passou a ter **156 testes, todos aprovados**.
+Depois desta execução, a convergência acrescentou 1 teste (T056), e as correções da revisão do PR #63 acrescentaram mais 6. A suíte local passou a ter **162 testes, todos aprovados**, e os 5 de fumaça continuam passando.
 
 Os 5 testes `smoke` ficam fora da seleção padrão e rodam à parte (`uv run pytest -m smoke --no-cov`): **5 passaram** em 19,6 s.
 
@@ -110,6 +110,23 @@ Tempo de `/health` (SC-003, meta < 1 s): 3,6 ms no container e 15,6 ms localment
 | 4 | Código morto no plugin de rastreabilidade: *hook* que lia `report.config`, atributo inexistente | Revisão do código gerado pela IA antes do commit | *Hook* removido; o registro de resultados ficou numa classe ligada ao `config`. |
 | 5 | Caractere de controle ESC literal gravado no código-fonte no lugar de `\x1b` | Revisão do diff | Uma edição automatizada via *shell* interpretou o escape. Arquivo corrigido e verificado com `grep`. |
 | 6 | Fixture `settings` herdava variáveis `COFRE_*` do shell do desenvolvedor (ex.: `COFRE_LOG_LEVEL=WARNING` quebrava os testes de log) | `/speckit-converge` (FR-029), confirmado por teste vermelho | O `pydantic-settings` lê o ambiente mesmo com argumentos explícitos e em `model_validate`; a primeira correção proposta (`model_validate`) também falhou no teste. A solução foi a subclasse de teste `IsolatedSettings`, com `settings_customise_sources` restrito aos argumentos (T056). |
+
+**Achados da revisão assistida por IA** ([PR #63](https://github.com/GuidaGaita/bootcamp/pull/63), `/code-review` em esforço alto). A suíte estava verde quando a revisão encontrou estes problemas:
+
+| # | Achado | Tratamento |
+|---|--------|------------|
+| R1 | `make_url` lança `ValueError` com um trecho da URL; `COFRE_DATABASE_URL=postgresql://user:p@ss:w0rd@host/db` fazia a `ConfigurationError` mostrar `w0rd@host` (viola FR-019) | Corrigido; teste de regressão com senha na URL |
+| R2 | `ping` reaproveitava a conexão do *pool*, e `SELECT 1` não lê o arquivo: `/health` respondia 200 com o banco corrompido | Corrigido (`NullPool` e leitura de `sqlite_master`); refinamento R-025 |
+| R3 | `HTTPException` com status fora de 404/405 vira 500 | Mantido: é a decisão R5 (catálogo fechado; ampliar exige atualizar docs/03). A unidade 002 define os códigos de autenticação |
+| R4 | A imagem `runtime` fora do compose tentava criar o banco em `/app/data`, que pertence ao root | Corrigido (`ENV COFRE_DATABASE_URL` no estágio `runtime`); verificado com `docker run` |
+| R5 | Exceção depois de iniciada a resposta não é relançada | Mantido: relançar faria o Uvicorn registrar a mensagem da exceção (FR-015); o Uvicorn já fecha a resposta incompleta |
+| R6 | `sqlite://` em memória: um banco por *thread* | Corrigido (`StaticPool`); refinamento R-025 |
+| R7 | `database_init_failed` ignorava `COFRE_LOG_LEVEL` e o relógio injetado | Corrigido (`log_event` comum a todos os logs) |
+| R8 | `code` fora do catálogo virava 500 sem log | Corrigido (log ERROR `unmapped_error_code`) |
+| R9 | O teste de higiene de log não inspecionava o JSON emitido (`caplog.text` omite os campos extras) | Teste reforçado |
+| R10 | O teste de fumaça com `restart` não provava a persistência no volume | Trocado por `down` + `up` |
+
+**Falha do CI no primeiro push:** o workflow usava `astral-sh/setup-uv@v10`, uma tag major que não existe (o projeto publica só versões completas). A versão tinha sido deduzida pela IA a partir da release `v10.2.0` sem verificação, e foi fixada em `v10.2.0`.
 
 **Cobertura abaixo de 100%:**
 

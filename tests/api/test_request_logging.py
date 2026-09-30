@@ -125,3 +125,35 @@ def test_probe_router_is_only_in_test_app(tmp_path, clock):
         response = client.get(f"{probe.router.prefix}/boom")
 
     assert response.status_code == 404
+
+
+@pytest.mark.req("RNF-04")
+def test_domain_error_outside_catalog_is_logged_and_returns_500(client, caplog):
+    with caplog.at_level(logging.INFO, logger="cofre"):
+        response = client.get("/api/v1/_probe/unknown-code")
+
+    assert response.status_code == 500
+    assert response.json()["error"]["code"] == "INTERNAL_ERROR"
+    (record,) = _records(caplog, "unmapped_error_code")
+    assert record.levelno == logging.ERROR
+    assert record.error_type == "CofreError"
+
+
+@pytest.mark.parametrize(("level", "expected"), [("ERROR", 1), ("CRITICAL", 0)])
+def test_database_init_failure_log_follows_configured_level(
+    tmp_path, clock, caplog, level, expected
+):
+    settings = make_settings(
+        tmp_path, database_url=f"sqlite:///{tmp_path.as_posix()}", log_level=level
+    )
+    clock.advance(minutes=7)
+
+    with caplog.at_level(logging.DEBUG, logger="cofre"), TestClient(create_app(settings, clock)):
+        pass
+
+    records = _records(caplog, "database_init_failed")
+    assert len(records) == expected
+    for record in records:
+        assert json.loads(JsonFormatter().format(record))["timestamp"].startswith(
+            "2026-01-01T00:07:00"
+        )

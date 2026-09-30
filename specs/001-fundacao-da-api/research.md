@@ -59,7 +59,7 @@ Consolida as decisões técnicas da unidade 001. Cada item segue o formato *Deci
 ## R6. Verificação do banco e inicialização tolerante
 
 - **Decisão:**
-  - `repositories/database.py` cria o `Engine` com `connect_args={"check_same_thread": False}` e expõe `ping(engine)`, que executa `SELECT 1` numa conexão nova a cada chamada.
+  - `repositories/database.py` cria o `Engine` com `connect_args={"check_same_thread": False}` e expõe `ping(engine)`, que lê `sqlite_master` numa conexão nova a cada chamada. Para isso, o banco em arquivo usa `NullPool`, e o banco em memória usa `StaticPool`, para que todas as *threads* vejam o mesmo banco (refinamento R-025: `SELECT 1` não lê o arquivo, e o `QueuePool` reaproveitava a conexão).
   - No *lifespan*, a aplicação:
     1. tenta criar o diretório pai do arquivo SQLite, se ele não existir;
     2. executa `Base.metadata.create_all`, ainda sem tabelas;

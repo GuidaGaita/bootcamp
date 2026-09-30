@@ -26,9 +26,11 @@ RUN groupadd --system --gid 10001 cofre \
 WORKDIR /app
 COPY --from=build /app/.venv /app/.venv
 COPY --from=build /app/src /app/src
+# Banco em /data mesmo fora do compose: /app pertence ao root e não é gravável pelo usuário cofre.
 ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    COFRE_DATABASE_URL=sqlite:////data/cofre.db
 USER cofre
 EXPOSE 8000
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \

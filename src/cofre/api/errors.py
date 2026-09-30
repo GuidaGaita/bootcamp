@@ -11,8 +11,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from cofre.api.schemas.errors import ErrorBody, ErrorResponse, ValidationDetail
 from cofre.core.errors import CofreError
-
-logger = logging.getLogger("cofre")
+from cofre.core.logging import log_event
 
 CATALOG: dict[str, tuple[int, str]] = {
     "NOT_FOUND": (404, "Recurso não encontrado."),
@@ -70,18 +69,23 @@ def validation_details(errors: Sequence[Mapping[str, Any]]) -> list[ValidationDe
     ]
 
 
-async def _handle_cofre_error(_request: Request, exc: CofreError) -> JSONResponse:
-    code = exc.code if exc.code in CATALOG else "INTERNAL_ERROR"
-    return error_response(code)
+def _log_error(request: Request, event: str, **fields: object) -> None:
+    state = request.app.state
+    log_event(state.settings.log_level, state.clock, logging.ERROR, event, **fields)
 
 
-async def _handle_http_exception(_request: Request, exc: StarletteHTTPException) -> JSONResponse:
+async def _handle_cofre_error(request: Request, exc: CofreError) -> JSONResponse:
+    if exc.code not in CATALOG:
+        # Adding a code requires updating docs/03 §6.3 first (research R5).
+        _log_error(request, "unmapped_error_code", error_type=type(exc).__name__)
+        return error_response("INTERNAL_ERROR")
+    return error_response(exc.code)
+
+
+async def _handle_http_exception(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     code = _HTTP_STATUS_CODES.get(exc.status_code)
     if code is None:
-        logger.error(
-            "unmapped_http_status",
-            extra={"event": "unmapped_http_status", "status": exc.status_code},
-        )
+        _log_error(request, "unmapped_http_status", status=exc.status_code)
         return error_response("INTERNAL_ERROR")
     return error_response(code, headers=exc.headers)
 

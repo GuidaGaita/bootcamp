@@ -5,6 +5,8 @@ import logging
 
 import pytest
 
+from cofre.core.logging import JsonFormatter
+
 pytestmark = [pytest.mark.security, pytest.mark.req("RNF-04", "RNF-13")]
 
 HEADERS = {
@@ -59,6 +61,10 @@ def test_sensitive_request_data_never_reaches_logs(app, caplog, capsys, method, 
     request_id = dict(start["headers"])[b"x-request-id"]
     assert b"MARCADOR" not in request_id
     assert any(getattr(r, "event", None) == "request" for r in caplog.records)
+    # caplog.text omits extra fields, so also check the JSON lines the handler would emit
+    # and every attribute carried by the records.
+    emitted = "\n".join(JsonFormatter().format(record) for record in caplog.records)
+    attributes = repr([vars(record) for record in caplog.records])
     captured = capsys.readouterr()
-    for text in (caplog.text, captured.out, captured.err):
+    for text in (caplog.text, emitted, attributes, captured.out, captured.err):
         assert "MARCADOR" not in text

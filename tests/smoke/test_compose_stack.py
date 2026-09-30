@@ -32,11 +32,12 @@ def test_api_runs_as_non_root(compose_stack):
 
 
 @pytest.mark.req("RNF-10")
-def test_database_survives_restart(compose_stack):
+def test_database_survives_container_recreation(compose_stack):
     assert httpx.get(f"{compose_stack}/health", timeout=10).status_code == 200
     compose("exec", "-T", "api", "test", "-f", "/data/cofre.db")
 
-    compose("restart", "api")
+    # down (without -v) removes the container and its filesystem: only the volume survives.
+    compose("down")
     compose("up", "-d", "--wait", "api")
 
     compose("exec", "-T", "api", "test", "-f", "/data/cofre.db")

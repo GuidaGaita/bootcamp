@@ -7,6 +7,8 @@ import traceback
 from datetime import UTC, datetime
 from types import TracebackType
 
+from cofre.core.clock import Clock
+
 LOGGER_NAME = "cofre"
 
 # Only these record attributes are ever written; anything else is dropped (FR-014).
@@ -49,6 +51,17 @@ class JsonFormatter(logging.Formatter):
             data.setdefault("error_type", record.exc_info[0].__name__)
             data.setdefault("stack", format_stack(record.exc_info[2]))
         return json.dumps(data, ensure_ascii=False, default=str)
+
+
+def log_event(
+    configured_level: str, clock: Clock, level: int, event: str, **fields: object
+) -> None:
+    """Emit ``event`` only if the application's configured level allows it (FR-016, FR-022)."""
+    if level < logging.getLevelNamesMapping()[configured_level]:
+        return
+    logging.getLogger(LOGGER_NAME).log(
+        level, event, extra={"event": event, "timestamp": clock.now(), **fields}
+    )
 
 
 def configure_logging() -> None:

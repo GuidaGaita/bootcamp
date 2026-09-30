@@ -47,7 +47,7 @@ class Settings(BaseSettings):
     def _require_sqlite(cls, value: str) -> str:
         try:
             backend = make_url(value).get_backend_name()
-        except ArgumentError:
+        except (ArgumentError, ValueError):
             raise ValueError("URL de banco inválida") from None
         if backend != "sqlite":
             raise ValueError("backend de banco não suportado; use sqlite")

@@ -122,3 +122,15 @@ def test_configuration_error_does_not_chain_validation_error(monkeypatch):
 
     assert raised.value.__cause__ is None
     assert raised.value.__suppress_context__
+
+
+@pytest.mark.req("RNF-04")
+def test_malformed_url_with_password_is_not_echoed(monkeypatch):
+    # make_url raises ValueError quoting part of the URL for a non-numeric port.
+    monkeypatch.setenv("COFRE_DATABASE_URL", "postgresql://user:p@ss:w0rd@host/db")
+
+    with pytest.raises(ConfigurationError, match="COFRE_DATABASE_URL") as raised:
+        load_settings()
+
+    assert "w0rd" not in str(raised.value)
+    assert "host" not in str(raised.value)
