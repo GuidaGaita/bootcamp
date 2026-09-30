@@ -235,16 +235,16 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 ### Tests for User Story 5 ⚠️
 
-- [ ] T042 [P] [US5] Escrever `tests/unit/test_config.py` (marcador `unit`, `req("RNF-10")`; casos de mensagem também com `"RNF-04"`), com as variáveis definidas via `monkeypatch.setenv`. Cobre US5 cenário 1 e FR-018 e FR-019:
+- [X] T042 [P] [US5] Escrever `tests/unit/test_config.py` (marcador `unit`, `req("RNF-10")`; casos de mensagem também com `"RNF-04"`), com as variáveis definidas via `monkeypatch.setenv`. Cobre US5 cenário 1 e FR-018 e FR-019:
   - sem variáveis, os padrões de data-model.md;
   - `COFRE_LOG_LEVEL=debug` normalizado para `DEBUG`;
   - erro de configuração em cada caso: `COFRE_ENV=staging`; `COFRE_LOG_LEVEL=verbose`; `0` e `-1` em `COFRE_SESSION_TTL_MINUTES`, `COFRE_LOGIN_MAX_ATTEMPTS`, `COFRE_LOGIN_LOCK_MINUTES` e `COFRE_MAX_CREDENTIALS_PER_USER`; `COFRE_DATABASE_URL=postgresql://MARCADOR-URL/db`;
   - a mensagem do `ConfigurationError` cita o nome da variável e não contém `staging`, `verbose`, `MARCADOR-URL` nem o valor numérico recebido.
-- [ ] T043 [P] [US5] Escrever `tests/security/test_startup_guards.py` (marcador `security`, `req("RNF-02")`), cobrindo US5 cenários 2 e 3 e FR-020:
+- [X] T043 [P] [US5] Escrever `tests/security/test_startup_guards.py` (marcador `security`, `req("RNF-02")`), cobrindo US5 cenários 2 e 3 e FR-020:
   - com `COFRE_ENV=production` e também com `development`, `create_app()` falha para `COFRE_ARGON2_MEMORY_KIB=19455`, `COFRE_ARGON2_TIME_COST=1` e `COFRE_ARGON2_PARALLELISM=0`, cada um isoladamente;
   - com os valores mínimos exatos (19456, 2, 1), a aplicação inicia;
   - com `COFRE_ENV=test` e `COFRE_ARGON2_MEMORY_KIB=1024`, a aplicação inicia.
-- [ ] T044 [P] [US5] Escrever `tests/api/test_app_factory.py` (marcador `api`, `req("RNF-09", "RNF-10")`; caso do banco padrão também com `"RNF-15"`), cobrindo US5 cenário 5 e FR-017 e FR-022:
+- [X] T044 [P] [US5] Escrever `tests/api/test_app_factory.py` (marcador `api`, `req("RNF-09", "RNF-10")`; caso do banco padrão também com `"RNF-15"`), cobrindo US5 cenário 5 e FR-017 e FR-022:
   - `create_app()` sem argumentos usa `Settings` do ambiente e `SystemClock`;
   - `importlib.reload(cofre.main)` com `COFRE_ENV=staging` no ambiente não falha;
   - duas aplicações com `tmp_path` e `FakeClock` diferentes não compartilham banco (arquivos distintos criados) nem relógio;
@@ -252,7 +252,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 ### Implementation for User Story 5
 
-- [ ] T045 [US5] Acrescentar a `src/cofre/core/config.py` os validadores e a exceção de configuração, até T042–T044 passarem (research R8; FR-019, FR-020):
+- [X] T045 [US5] Acrescentar a `src/cofre/core/config.py` os validadores e a exceção de configuração, até T042–T044 passarem (research R8; FR-019, FR-020):
   - `env` e `log_level` como `Literal`, com `log_level` normalizado em maiúsculas;
   - inteiros `≥ 1`;
   - `database_url` com *backend* `sqlite` via `sqlalchemy.engine.make_url`;

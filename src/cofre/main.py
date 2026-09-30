@@ -11,7 +11,7 @@ from cofre.api.errors import register_error_handlers
 from cofre.api.middleware import RequestContextMiddleware
 from cofre.api.routers import health
 from cofre.core.clock import Clock, SystemClock
-from cofre.core.config import Settings
+from cofre.core.config import Settings, load_settings
 from cofre.repositories.database import build_engine, build_session_factory, init_schema
 
 logger = logging.getLogger("cofre")
@@ -20,7 +20,7 @@ logger = logging.getLogger("cofre")
 def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:
     """Build an independent application; reads the environment only when ``settings`` is None."""
     if settings is None:
-        settings = Settings()
+        settings = load_settings()
     if clock is None:
         clock = SystemClock()
 
