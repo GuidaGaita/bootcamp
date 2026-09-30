@@ -4,7 +4,9 @@ Evidências versionadas da execução da suíte de testes. Estratégia em [07-es
 
 ## Situação
 
-Nenhuma execução registrada ainda. O harness de testes é entregue no **incremento 1** ([09-roadmap.md](../09-roadmap.md)).
+| Relatório | Incremento | Resultado |
+|-----------|------------|-----------|
+| [2026-09-30-incremento-1.md](2026-09-30-incremento-1.md) | 1 — Fundação | 155 testes passaram, 5 de fumaça passaram, cobertura 96,18% |
 
 ## Quando publicar
 
