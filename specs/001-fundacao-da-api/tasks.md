@@ -322,7 +322,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
   - `docs/09-roadmap.md` §3: situação do incremento 1;
   - `specs/001-fundacao-da-api/spec.md`: status `Implementada`.
 - [X] T054 Rodar `docker compose run --rm tests` e publicar `docs/relatorios/AAAA-MM-DD-incremento-1.md` no modelo de `docs/relatorios/README.md`, com os resultados de T041 e T052; atualizar a seção *Situação* de `docs/relatorios/README.md` e a seção *Evidências de execução* do `README.md` (FR-039; research R20)
-- [ ] T055 Após o merge do PR de implementação, exigir os *status checks* `lint`, `test` e `docker` na proteção de `main` e `develop` via `gh api` e atualizar a *Situação atual* de `docs/06-governanca.md` §6 num PR `docs/` (plan.md *Implementation Notes*; docs/09 critério do incremento 1)
+- [X] T055 Após o merge do PR de implementação, exigir os *status checks* `lint`, `test` e `docker` na proteção de `main` e `develop` via `gh api` e atualizar a *Situação atual* de `docs/06-governanca.md` §6 num PR `docs/` (plan.md *Implementation Notes*; docs/09 critério do incremento 1)
 
 ---
 
