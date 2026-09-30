@@ -6,6 +6,8 @@ from cofre.main import create_app
 from tests.support import probe
 from tests.support.clock import FakeClock
 
+pytest_plugins = ["pytester", "tests.harness.plugin"]
+
 
 def sqlite_url(path) -> str:
     return f"sqlite:///{path.as_posix()}"

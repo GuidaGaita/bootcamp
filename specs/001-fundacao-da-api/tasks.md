@@ -145,8 +145,8 @@ Projeto único, layout `src/` (plan.md §Project Structure): código em `src/cof
 
 Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, um `pyproject.toml` com a opção ini `requirements_catalog` apontando para um catálogo de exemplo e um pacote mínimo de exemplo.
 
-- [ ] T029 [P] [US3] Escrever `tests/unit/test_harness_catalog.py` (marcador `unit`, `req("RNF-09")`): o leitor extrai de um catálogo de exemplo `RF-01` com prioridade `Must`, `RNF-12` com `Should` e `RN-01` sem prioridade, ignora linhas fora de tabela e, sobre o `docs/02-requisitos.md` real, encontra `RF-01` a `RF-16`, `RNF-01` a `RNF-15` e `RN-01` a `RN-16` (data-model.md *Catálogo de requisitos*; FR-025)
-- [ ] T030 [P] [US3] Escrever `tests/unit/test_harness_traceability.py` (marcador `unit`, `req("RNF-09")`), cobrindo US3 cenários 2, 3, 5 e 6 e FR-024 a FR-026:
+- [X] T029 [P] [US3] Escrever `tests/unit/test_harness_catalog.py` (marcador `unit`, `req("RNF-09")`): o leitor extrai de um catálogo de exemplo `RF-01` com prioridade `Must`, `RNF-12` com `Should` e `RN-01` sem prioridade, ignora linhas fora de tabela e, sobre o `docs/02-requisitos.md` real, encontra `RF-01` a `RF-16`, `RNF-01` a `RNF-15` e `RN-01` a `RN-16` (data-model.md *Catálogo de requisitos*; FR-025)
+- [X] T030 [P] [US3] Escrever `tests/unit/test_harness_traceability.py` (marcador `unit`, `req("RNF-09")`), cobrindo US3 cenários 2, 3, 5 e 6 e FR-024 a FR-026:
   - `req("RF-1")` → execução falha citando o *nodeid* e `RF-1`;
   - `req("RF-99")` → falha citando `RF-99`;
   - `req()` → falha;
@@ -154,22 +154,22 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
   - teste com `req("RF-01")` aparece sob `RF-01` em `reports/rastreabilidade.md`, com o resultado;
   - requisito `Must` sem teste aparece na seção "Requisitos Must sem teste" sem alterar o código de saída;
   - com um teste falhando, `rastreabilidade.md` é gerado mesmo assim.
-- [ ] T031 [P] [US3] Escrever `tests/unit/test_harness_coverage_gate.py` (marcador `unit`, `req("RNF-09")`), cobrindo US3 cenários 1 e 4 e FR-027 e FR-028:
+- [X] T031 [P] [US3] Escrever `tests/unit/test_harness_coverage_gate.py` (marcador `unit`, `req("RNF-09")`), cobrindo US3 cenários 1 e 4 e FR-027 e FR-028:
   - seleção padrão com cobertura abaixo de 85% → código de saída diferente de 0 mesmo com todos os testes passando;
   - a mesma suíte com `-m unit`, com `-k nome` ou com caminho de arquivo explícito → código 0;
   - com um teste falhando, `reports/junit.xml`, `reports/coverage.xml`, `reports/htmlcov/index.html` e `reports/pytest-output.log` existem, e o log contém o resumo final.
 
 ### Implementation for User Story 3
 
-- [ ] T032 [P] [US3] Implementar `tests/harness/catalog.py`: `load_catalog(path) -> dict[str, str | None]` lendo linhas de tabela que começam por `| RF-\d{2} |`, `| RNF-\d{2} |` ou `| RN-\d{2} |` e capturando a prioridade (`Must`, `Should`, `Could`, `Won't`) quando houver, até T029 passar (research R14)
-- [ ] T033 [P] [US3] Implementar `tests/harness/traceability.py`, até T030 passar. Cobre research R14:
+- [X] T032 [P] [US3] Implementar `tests/harness/catalog.py`: `load_catalog(path) -> dict[str, str | None]` lendo linhas de tabela que começam por `| RF-\d{2} |`, `| RNF-\d{2} |` ou `| RN-\d{2} |` e capturando a prioridade (`Must`, `Should`, `Could`, `Won't`) quando houver, até T029 passar (research R14)
+- [X] T033 [P] [US3] Implementar `tests/harness/traceability.py`, até T030 passar. Cobre research R14:
   - opção ini `requirements_catalog`, com padrão `docs/02-requisitos.md` relativo ao *rootdir*;
   - em `pytest_collection_modifyitems`, valida cada `req` (ao menos um ID, formato `^(RF|RNF|RN)-\d{2}$`, existência no catálogo) e reúne as violações num único `pytest.UsageError`;
   - em `pytest_runtest_logreport`, registra os resultados;
   - em `pytest_sessionfinish`, escreve `reports/rastreabilidade.md` no formato de data-model.md, com instante UTC, seleção (padrão/subconjunto), tabela requisito → testes → resultado e a seção "Requisitos Must sem teste".
-- [ ] T034 [P] [US3] Implementar `tests/harness/coverage_gate.py`: em `pytest_configure`, zera `config.option.cov_fail_under` quando a expressão `-m` difere de `not perf and not smoke`, quando há `-k` ou quando os argumentos não são os `testpaths`, até T031 (gate) passar (research R14)
-- [ ] T035 [P] [US3] Implementar `tests/harness/output_log.py`: em `pytest_configure` (`trylast`), duplica a escrita do *terminal writer* para `reports/pytest-output.log`, como o plugin `pastebin` do pytest, e fecha o arquivo em `pytest_unconfigure`, até T031 (log) passar (research R14)
-- [ ] T036 [US3] Criar `tests/harness/plugin.py`, que registra os hooks de T033–T035, e declarar em `tests/conftest.py` `pytest_plugins = ["pytester", "tests.harness.plugin"]`, ajustando `pythonpath` em `pyproject.toml` se necessário; rodar `uv run pytest` e confirmar os cinco artefatos em `reports/` (FR-026, FR-028)
+- [X] T034 [P] [US3] Implementar `tests/harness/coverage_gate.py`: em `pytest_configure`, zera `config.option.cov_fail_under` quando a expressão `-m` difere de `not perf and not smoke`, quando há `-k` ou quando os argumentos não são os `testpaths`, até T031 (gate) passar (research R14)
+- [X] T035 [P] [US3] Implementar `tests/harness/output_log.py`: em `pytest_configure` (`trylast`), duplica a escrita do *terminal writer* para `reports/pytest-output.log`, como o plugin `pastebin` do pytest, e fecha o arquivo em `pytest_unconfigure`, até T031 (log) passar (research R14)
+- [X] T036 [US3] Criar `tests/harness/plugin.py`, que registra os hooks de T033–T035, e declarar em `tests/conftest.py` `pytest_plugins = ["pytester", "tests.harness.plugin"]`, ajustando `pythonpath` em `pyproject.toml` se necessário; rodar `uv run pytest` e confirmar os cinco artefatos em `reports/` (FR-026, FR-028)
 
 **Checkpoint**: Harness completo; a partir daqui todo teste novo aparece em `reports/rastreabilidade.md`
 
