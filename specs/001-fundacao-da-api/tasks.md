@@ -218,7 +218,7 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
   - job `docker` (`needs: test`): `astral-sh/setup-uv`, `uv sync --locked`, `uv run pytest -m smoke --no-cov` e `docker compose run --rm tests`.
 
   O workflow deve fazer T037 (`test_ci_workflow.py`) passar.
-- [ ] T041 [US4] Executar os cenários de `quickstart.md` na máquina Windows do mantenedor, anotando os resultados para o relatório de execução (FR-035; SC-001, SC-003; docs/02 RNF-15 "uso local em Windows"):
+- [X] T041 [US4] Executar os cenários de `quickstart.md` na máquina Windows do mantenedor, anotando os resultados para o relatório de execução (FR-035; SC-001, SC-003; docs/02 RNF-15 "uso local em Windows"):
   - cenários 1 a 3, 5 e 6, com Docker;
   - cenários 7 a 10, com `uv`, sem Docker;
   - tempo de `/health` com `curl -w "%{time_total}"`, com o banco disponível e indisponível.
@@ -311,17 +311,17 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T052 Rodar `uv lock --check`, `uv run ruff check .`, `uv run ruff format --check .` e `uv run pytest` três vezes seguidas, com as sementes do `pytest-randomly` diferentes, e confirmar (SC-004 a SC-006; FR-031, FR-038):
+- [X] T052 Rodar `uv lock --check`, `uv run ruff check .`, `uv run ruff format --check .` e `uv run pytest` três vezes seguidas, com as sementes do `pytest-randomly` diferentes, e confirmar (SC-004 a SC-006; FR-031, FR-038):
   - suíte verde em menos de 60 s;
   - cobertura de linhas e ramificações ≥ 85%;
   - todo cenário de aceitação e caso de borda da spec com teste correspondente;
   - `reports/rastreabilidade.md` com testes para RF-01, RNF-08, RNF-09, RNF-10, RNF-11, RNF-13, RNF-14 e RNF-15.
-- [ ] T053 [P] Atualizar a documentação no PR de implementação (docs/05 §3 passo 14):
+- [X] T053 [P] Atualizar a documentação no PR de implementação (docs/05 §3 passo 14):
   - `docs/02-requisitos.md` §4: RF-01, RNF-08 a RNF-11 e RNF-13 a RNF-15 como `Implementado`, com links para os testes;
   - `README.md`: status do projeto e linha "Verificação de saúde da API" como `Implementado`;
   - `docs/09-roadmap.md` §3: situação do incremento 1;
   - `specs/001-fundacao-da-api/spec.md`: status `Implementada`.
-- [ ] T054 Rodar `docker compose run --rm tests` e publicar `docs/relatorios/AAAA-MM-DD-incremento-1.md` no modelo de `docs/relatorios/README.md`, com os resultados de T041 e T052; atualizar a seção *Situação* de `docs/relatorios/README.md` e a seção *Evidências de execução* do `README.md` (FR-039; research R20)
+- [X] T054 Rodar `docker compose run --rm tests` e publicar `docs/relatorios/AAAA-MM-DD-incremento-1.md` no modelo de `docs/relatorios/README.md`, com os resultados de T041 e T052; atualizar a seção *Situação* de `docs/relatorios/README.md` e a seção *Evidências de execução* do `README.md` (FR-039; research R20)
 - [ ] T055 Após o merge do PR de implementação, exigir os *status checks* `lint`, `test` e `docker` na proteção de `main` e `develop` via `gh api` e atualizar a *Situação atual* de `docs/06-governanca.md` §6 num PR `docs/` (plan.md *Implementation Notes*; docs/09 critério do incremento 1)
 
 ---
