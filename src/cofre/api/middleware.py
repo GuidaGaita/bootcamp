@@ -2,6 +2,7 @@
 
 import logging
 import re
+import time
 import uuid
 from collections.abc import Iterable
 
@@ -9,8 +10,9 @@ from starlette.datastructures import MutableHeaders
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from cofre.api.errors import error_response
+from cofre.core.logging import LOGGER_NAME, format_stack
 
-logger = logging.getLogger("cofre")
+logger = logging.getLogger(LOGGER_NAME)
 
 REQUEST_ID_HEADER = b"x-request-id"
 _REQUEST_ID_PATTERN = re.compile(r"[A-Za-z0-9-]{1,64}", re.ASCII)
@@ -33,6 +35,8 @@ def is_api_path(path: str) -> bool:
 
 
 class RequestContextMiddleware:
+    """Request ID, cross-cutting headers, standard 500 and one log line per request."""
+
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
 
@@ -41,15 +45,16 @@ class RequestContextMiddleware:
             await self.app(scope, receive, send)
             return
 
+        started = time.perf_counter()
         request_id = choose_request_id(scope.get("headers", []))
         scope.setdefault("state", {})["request_id"] = request_id
         no_store = is_api_path(scope["path"])
-        response_started = False
+        status: int | None = None
 
         async def send_with_headers(message: Message) -> None:
-            nonlocal response_started
+            nonlocal status
             if message["type"] == "http.response.start":
-                response_started = True
+                status = message["status"]
                 headers = MutableHeaders(scope=message)
                 headers["X-Request-ID"] = request_id
                 if no_store:
@@ -59,11 +64,33 @@ class RequestContextMiddleware:
         try:
             await self.app(scope, receive, send_with_headers)
         except Exception as exc:
-            logger.error(
+            self._log(
+                scope,
+                logging.ERROR,
                 "unhandled_exception",
-                extra={"event": "unhandled_exception", "error_type": type(exc).__name__},
+                request_id=request_id,
+                error_type=type(exc).__name__,
+                stack=format_stack(exc.__traceback__),
             )
-            if response_started:
-                return
-            response = error_response("INTERNAL_ERROR")
-            await response(scope, receive, send_with_headers)
+            if status is None:
+                await error_response("INTERNAL_ERROR")(scope, receive, send_with_headers)
+        finally:
+            route = scope.get("route")
+            self._log(
+                scope,
+                logging.INFO,
+                "request",
+                request_id=request_id,
+                method=scope["method"],
+                route=getattr(route, "path", None),
+                status=status,
+                duration_ms=round((time.perf_counter() - started) * 1000, 3),
+            )
+
+    @staticmethod
+    def _log(scope: Scope, level: int, event: str, **fields: object) -> None:
+        """Emit only if the application's configured level allows it (FR-022)."""
+        state = scope["app"].state
+        if level < logging.getLevelName(state.settings.log_level):
+            return
+        logger.log(level, event, extra={"event": event, "timestamp": state.clock.now(), **fields})

@@ -273,11 +273,11 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
 
 ### Tests for User Story 6 ⚠️
 
-- [ ] T046 [P] [US6] Escrever `tests/unit/test_request_id.py` (marcador `unit`, `req("RNF-13", "RNF-04")`) para a função de escolha do identificador sobre cabeçalhos brutos (FR-012):
+- [X] T046 [P] [US6] Escrever `tests/unit/test_request_id.py` (marcador `unit`, `req("RNF-13", "RNF-04")`) para a função de escolha do identificador sobre cabeçalhos brutos (FR-012):
   - são propagados: `abc-123`, um valor com 64 caracteres válidos e `A-z-0-9`;
   - geram UUID v4 novo (verificado com `uuid.UUID(valor).version == 4`): valor com 65 caracteres, valor vazio, valor com `\n`, valor com espaço, `ação`, cabeçalho ausente e dois cabeçalhos `x-request-id`.
-- [ ] T047 [P] [US6] Escrever `tests/unit/test_json_formatter.py` (marcador `unit`, `req("RNF-13")`): cada registro vira uma única linha JSON válida com `timestamp`, `level` e `event`; `timestamp` vem do campo extra quando fornecido e de `record.created` em UTC quando não; a pilha de uma exceção vira lista `arquivo:linha:função` sem a mensagem `MARCADOR-EXCECAO`; `configure_logging` chamada duas vezes instala um único *handler* (FR-013, FR-015)
-- [ ] T048 [P] [US6] Escrever `tests/api/test_request_logging.py` (marcador `api`, `req("RNF-13")`), com logs capturados por `caplog`. Cobre US6 cenários 1–3, US5 cenário 4 e FR-011, FR-013, FR-015 e FR-016:
+- [X] T047 [P] [US6] Escrever `tests/unit/test_json_formatter.py` (marcador `unit`, `req("RNF-13")`): cada registro vira uma única linha JSON válida com `timestamp`, `level` e `event`; `timestamp` vem do campo extra quando fornecido e de `record.created` em UTC quando não; a pilha de uma exceção vira lista `arquivo:linha:função` sem a mensagem `MARCADOR-EXCECAO`; `configure_logging` chamada duas vezes instala um único *handler* (FR-013, FR-015)
+- [X] T048 [P] [US6] Escrever `tests/api/test_request_logging.py` (marcador `api`, `req("RNF-13")`), com logs capturados por `caplog`. Cobre US6 cenários 1–3, US5 cenário 4 e FR-011, FR-013, FR-015 e FR-016:
   - `X-Request-ID: abc-123` → cabeçalho e `request_id` do log iguais a `abc-123`;
   - sem o cabeçalho → UUID v4 igual no cabeçalho e no log;
   - dois cabeçalhos `X-Request-ID` enviados como lista de tuplas → UUID gerado;
@@ -287,15 +287,15 @@ Os testes com `pytester.runpytest_subprocess` criam, no diretório temporário, 
   - `timestamp` igual ao instante do `FakeClock` após `clock.advance(minutes=5)`;
   - com `log_level="WARNING"` na configuração, nenhum registro `request`;
   - `/api/v1/_probe/boom` gera registro ERROR `unhandled_exception` com `error_type == "RuntimeError"` e `stack` não vazia, sem `MARCADOR-EXCECAO`.
-- [ ] T049 [P] [US6] Escrever `tests/security/test_log_hygiene.py` (marcador `security`, `req("RNF-04", "RNF-13")`), cobrindo US6 cenário 4 e FR-014:
+- [X] T049 [P] [US6] Escrever `tests/security/test_log_hygiene.py` (marcador `security`, `req("RNF-04", "RNF-13")`), cobrindo US6 cenário 4 e FR-014:
   - uma requisição a `POST /api/v1/_probe/echo?q=MARCADOR-QUERY` com `Authorization: Bearer MARCADOR-TOKEN`, `Cookie: s=MARCADOR-COOKIE`, corpo `{"name": "MARCADOR-CORPO"}` e `X-Request-ID: MARCADOR\nINJETADO`;
   - outra requisição sem corpo a `GET /api/v1/rota-inexistente` com os mesmos cabeçalhos;
   - em ambas, nenhum marcador aparece em `caplog.text` nem na saída capturada por `capsys`.
 
 ### Implementation for User Story 6
 
-- [ ] T050 [US6] Implementar `src/cofre/core/logging.py` com `JsonFormatter` (uma linha JSON; campos extras permitidos `timestamp`, `event`, `request_id`, `method`, `route`, `status`, `duration_ms`, `error_type`, `stack`; nunca `record.msg` com dados de requisição) e `configure_logging()` idempotente sobre o logger `cofre` com `StreamHandler(stdout)`, até T047 passar (research R10)
-- [ ] T051 [US6] Estender `RequestContextMiddleware` em `src/cofre/api/middleware.py`, até T046, T048 e T049 passarem. Cobre research R4, R10 e R11 e FR-011 a FR-016:
+- [X] T050 [US6] Implementar `src/cofre/core/logging.py` com `JsonFormatter` (uma linha JSON; campos extras permitidos `timestamp`, `event`, `request_id`, `method`, `route`, `status`, `duration_ms`, `error_type`, `stack`; nunca `record.msg` com dados de requisição) e `configure_logging()` idempotente sobre o logger `cofre` com `StreamHandler(stdout)`, até T047 passar (research R10)
+- [X] T051 [US6] Estender `RequestContextMiddleware` em `src/cofre/api/middleware.py`, até T046, T048 e T049 passarem. Cobre research R4, R10 e R11 e FR-011 a FR-016:
   - (já feito em T021 pelo refinamento R-023) escolher o `request_id` sobre os cabeçalhos brutos do `scope` (exatamente um `x-request-id` que case `[A-Za-z0-9-]{1,64}` em ASCII, senão `uuid4`) e guardá-lo em `scope["state"]`;
   - acrescentar `X-Request-ID` a toda resposta;
   - medir `duration_ms` com `time.perf_counter`;

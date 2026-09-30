@@ -12,9 +12,10 @@ from cofre.api.middleware import RequestContextMiddleware
 from cofre.api.routers import health
 from cofre.core.clock import Clock, SystemClock
 from cofre.core.config import Settings, load_settings
+from cofre.core.logging import LOGGER_NAME, configure_logging
 from cofre.repositories.database import build_engine, build_session_factory, init_schema
 
-logger = logging.getLogger("cofre")
+logger = logging.getLogger(LOGGER_NAME)
 
 
 def create_app(settings: Settings | None = None, clock: Clock | None = None) -> FastAPI:
@@ -23,6 +24,7 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
         settings = load_settings()
     if clock is None:
         clock = SystemClock()
+    configure_logging()
 
     engine = build_engine(settings.database_url)
 
