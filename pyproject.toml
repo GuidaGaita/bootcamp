@@ -1,0 +1,66 @@
+[project]
+name = "cofre"
+version = "0.2.0"
+description = "API REST multiusuário de gerenciamento de senhas."
+readme = "README.md"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "pydantic-settings>=2.4",
+    "sqlalchemy>=2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=5.0",
+    "pytest-randomly>=3.15",
+    "httpx>=0.27",
+    "jsonschema>=4.23",
+    "pyyaml>=6.0",
+    "ruff>=0.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.8,<0.20"]
+build-backend = "uv_build"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "S", "ANN", "N"]
+ignore = ["ANN202"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "ANN"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "unit: teste unitário, sem banco nem HTTP",
+    "integration: teste com banco SQLite real",
+    "api: teste HTTP com TestClient",
+    "security: teste de propriedade de segurança",
+    "perf: teste de desempenho (fora da seleção padrão)",
+    "smoke: teste de fumaça com docker compose (fora da seleção padrão)",
+    "req(*ids): requisitos de docs/02-requisitos.md cobertos pelo teste",
+]
+addopts = [
+    "--strict-markers",
+    "-m", "not perf and not smoke",
+    "--cov=cofre",
+    "--cov-branch",
+    "--cov-fail-under=85",
+    "--cov-report=term-missing",
+    "--cov-report=xml:reports/coverage.xml",
+    "--cov-report=html:reports/htmlcov",
+    "--junitxml=reports/junit.xml",
+]
+
+[tool.coverage.run]
+source = ["cofre"]
+branch = true
