@@ -1,0 +1,66 @@
+# Integração contínua do Cofre (research R16, docs/07 §7): lint -> test -> docker.
+name: CI
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.13"
+      - name: Lockfile atualizado
+        run: uv lock --check
+      - name: Dependências
+        run: uv sync --locked
+      - name: Ruff (lint)
+        run: uv run ruff check .
+      - name: Ruff (formatação)
+        run: uv run ruff format --check .
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.13"
+      - name: Dependências
+        run: uv sync --locked
+      - name: Suíte com gate de cobertura
+        run: uv run pytest
+      - name: Publicar relatórios
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports
+          path: reports/
+
+  docker:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          python-version: "3.13"
+      - name: Dependências
+        run: uv sync --locked
+      - name: Testes de fumaça (docker compose)
+        run: uv run pytest -m smoke --no-cov
+      - name: Suíte no container
+        run: docker compose run --rm tests

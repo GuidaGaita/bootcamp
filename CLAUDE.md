@@ -6,7 +6,7 @@ Instruções do Claude Code para este repositório. Valem para toda sessão.
 
 **Cofre**: API REST multiusuário de gerenciamento de senhas (Python 3.13, FastAPI, SQLite), desenvolvida com **Specification-Driven Development** usando o **GitHub Spec Kit**. Projeto individual de bootcamp, mantido por @GuidaGaita.
 
-**Estado atual:** incremento 0 concluído (release `v0.1.0`). **Ainda não existe código de aplicação.** O próximo passo é a spec da unidade 001, na branch `spec/001-fundacao-da-api` ([docs/09-roadmap.md](docs/09-roadmap.md)).
+**Estado atual:** incremento 1 em andamento. A spec da unidade 001 ([specs/001-fundacao-da-api/](specs/001-fundacao-da-api/spec.md)) está aprovada, com plano, contrato e `tasks.md`; cada tarefa é publicada como issue `T0xx:` (labels `tipo:tarefa` e `unidade:001`, milestone "Incremento 1 — Fundação") logo após o merge da spec. **Ainda não existe código de aplicação.** O próximo passo é a Fase B, na branch `feature/001-fundacao-da-api` ([docs/09-roadmap.md](docs/09-roadmap.md)).
 
 ## Fontes da verdade (ordem de precedência)
 

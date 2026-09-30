@@ -1,0 +1,248 @@
+openapi: 3.1.0
+info:
+  title: Cofre API
+  version: 0.2.0
+  summary: Contrato da unidade 001 (Fundação da API).
+  description: |
+    Contrato aprovado da unidade 001. Define `GET /health`, o formato de erro
+    padronizado (docs/03-arquitetura.md §6.3) e as respostas e cabeçalhos
+    comuns a qualquer caminho sob `/api/v1`.
+
+    Os testes de API validam as respostas da aplicação contra este arquivo
+    (ADR-0016). Mudança incompatível exige nova versão MAJOR da spec.
+servers:
+  - url: http://localhost:8000
+    description: Ambiente local (docker compose up)
+tags:
+  - name: health
+    description: Verificação de saúde para orquestradores (RF-01).
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      tags: [health]
+      summary: Verifica se a aplicação e o banco estão operacionais.
+      description: |
+        Público e fora de `/api/v1`. Verifica o banco a cada chamada, sem
+        cache. Não expõe versões, caminho do banco nem detalhes internos.
+        Outros métodos nesta rota respondem `405 METHOD_NOT_ALLOWED`
+        (`#/components/responses/MethodNotAllowed`).
+      security: []
+      responses:
+        "200":
+          description: Aplicação e banco operacionais.
+          headers:
+            X-Request-ID:
+              $ref: "#/components/headers/XRequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+              example:
+                status: ok
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+components:
+  headers:
+    XRequestId:
+      description: |
+        Identificador da requisição. Ecoa o valor recebido quando há um único
+        cabeçalho com 1 a 64 caracteres ASCII entre letras, dígitos e hífen;
+        caso contrário, é um UUID v4 gerado pelo servidor.
+      required: true
+      schema:
+        type: string
+        pattern: "^[A-Za-z0-9-]{1,64}$"
+    CacheControlNoStore:
+      description: Obrigatório em toda resposta sob `/api/v1`, inclusive erros.
+      required: true
+      schema:
+        type: string
+        const: no-store
+  schemas:
+    HealthResponse:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status:
+          type: string
+          const: ok
+    ErrorCode:
+      type: string
+      description: Catálogo completo de docs/03 §6.3.
+      enum:
+        - UNAUTHENTICATED
+        - INVALID_CREDENTIALS
+        - INVALID_MASTER_PASSWORD
+        - NOT_FOUND
+        - METHOD_NOT_ALLOWED
+        - EMAIL_ALREADY_REGISTERED
+        - VAULT_LIMIT_REACHED
+        - VALIDATION_ERROR
+        - TOO_MANY_ATTEMPTS
+        - INTERNAL_ERROR
+        - SERVICE_UNAVAILABLE
+    ValidationDetail:
+      type: object
+      additionalProperties: false
+      required: [field, issue]
+      properties:
+        field:
+          type: string
+          minLength: 1
+          description: Localização do campo; `body` para JSON malformado.
+        issue:
+          type: string
+          minLength: 1
+          description: Problema em pt-BR, sem repetir o valor recebido.
+    ErrorBody:
+      type: object
+      additionalProperties: false
+      required: [code, message]
+      properties:
+        code:
+          $ref: "#/components/schemas/ErrorCode"
+        message:
+          type: string
+          minLength: 1
+          description: Mensagem legível em pt-BR, sem valores da requisição.
+        details:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/ValidationDetail"
+      if:
+        required: [code]
+        properties:
+          code:
+            const: VALIDATION_ERROR
+      then:
+        required: [details]
+      else:
+        not:
+          required: [details]
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      required: [error]
+      properties:
+        error:
+          $ref: "#/components/schemas/ErrorBody"
+  responses:
+    NotFound:
+      description: Rota ou recurso inexistente.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        const: NOT_FOUND
+          example:
+            error:
+              code: NOT_FOUND
+              message: Recurso não encontrado.
+    MethodNotAllowed:
+      description: Método HTTP não suportado numa rota existente.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+        Allow:
+          description: Métodos aceitos pela rota.
+          required: true
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        const: METHOD_NOT_ALLOWED
+          example:
+            error:
+              code: METHOD_NOT_ALLOWED
+              message: Método não permitido para este recurso.
+    ValidationError:
+      description: Corpo que não é JSON válido ou que viola o esquema de entrada.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        const: VALIDATION_ERROR
+          example:
+            error:
+              code: VALIDATION_ERROR
+              message: Os dados enviados são inválidos.
+              details:
+                - field: body
+                  issue: JSON malformado.
+    InternalError:
+      description: Erro inesperado; nunca expõe detalhes internos.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        const: INTERNAL_ERROR
+          example:
+            error:
+              code: INTERNAL_ERROR
+              message: Erro interno inesperado.
+    ServiceUnavailable:
+      description: O banco de dados não respondeu à verificação de saúde.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/XRequestId"
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: "#/components/schemas/ErrorResponse"
+              - properties:
+                  error:
+                    properties:
+                      code:
+                        const: SERVICE_UNAVAILABLE
+          example:
+            error:
+              code: SERVICE_UNAVAILABLE
+              message: Serviço temporariamente indisponível.
+x-cofre-api-v1:
+  description: |
+    Regras comuns a qualquer caminho que seja `/api/v1` ou comece por
+    `/api/v1/`, inclusive caminhos sem rota. As operações de negócio são
+    acrescentadas pelos contratos das unidades 002 a 005.
+  requiredHeaders:
+    - "#/components/headers/XRequestId"
+    - "#/components/headers/CacheControlNoStore"
+  commonResponses:
+    "404": "#/components/responses/NotFound"
+    "405": "#/components/responses/MethodNotAllowed"
+    "422": "#/components/responses/ValidationError"
+    "500": "#/components/responses/InternalError"
