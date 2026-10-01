@@ -11,6 +11,7 @@ SRC = Path(__file__).resolve().parents[2] / "src" / "cofre"
 
 FORBIDDEN: dict[str, set[str]] = {
     "core": {"cofre.api", "cofre.services", "cofre.repositories", "cofre.crypto", "cofre.main"},
+    "crypto": {"cofre.api", "cofre.services", "cofre.repositories", "cofre.core", "cofre.main"},
     "repositories": {"cofre.services", "cofre.api", "cofre.main"},
     "services": {"cofre.api", "cofre.main", "fastapi", "starlette"},
 }

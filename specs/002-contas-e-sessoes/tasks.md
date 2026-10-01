@@ -13,13 +13,13 @@ description: "Lista de tarefas da unidade 002 — Contas e sessões"
 
 ## Phase 1: Setup
 
-- [ ] T001 `uv add argon2-cffi cryptography` (atualiza `pyproject.toml` e `uv.lock`) e estender `tests/unit/test_architecture.py` com a regra "`crypto` não importa nenhuma outra camada de `cofre`" (RNF-11).
+- [X] T001 `uv add argon2-cffi cryptography` (atualiza `pyproject.toml` e `uv.lock`) e estender `tests/unit/test_architecture.py` com a regra "`crypto` não importa nenhuma outra camada de `cofre`" (RNF-11).
 
 ## Phase 2: Fundação de criptografia e erros
 
-- [ ] T002 [P] Escrever `tests/unit/test_crypto.py` (`req("RNF-01","RNF-02","RNF-05","RNF-06")`): NFKC; Argon2id verifica certo e errado; KEK determinística por salt e diferente entre sais; AES-GCM ida e volta, nonce novo a cada chamada, AAD errada, adulteração e blob com menos de 28 bytes falham; embrulho e desembrulho da DEK; chave de sessão HKDF determinística; token tem 32 bytes em base64url de 43 caracteres; `decode_token` rejeita tamanho, alfabeto e padding inválidos.
-- [ ] T003 Implementar `src/cofre/crypto/` (`hashing`, `kdf`, `cipher`, `keys`, `tokens`) até T002 passar (docs/04 §3; FR-003, FR-004, FR-013).
-- [ ] T004 Estender `CofreError` com `headers` e `details`, acrescentar os códigos de FR-014 ao catálogo e fazer o handler repassá-los (spec FR-014; contrato).
+- [X] T002 [P] Escrever `tests/unit/test_crypto.py` (`req("RNF-01","RNF-02","RNF-05","RNF-06")`): NFKC; Argon2id verifica certo e errado; KEK determinística por salt e diferente entre sais; AES-GCM ida e volta, nonce novo a cada chamada, AAD errada, adulteração e blob com menos de 28 bytes falham; embrulho e desembrulho da DEK; chave de sessão HKDF determinística; token tem 32 bytes em base64url de 43 caracteres; `decode_token` rejeita tamanho, alfabeto e padding inválidos.
+- [X] T003 Implementar `src/cofre/crypto/` (`hashing`, `kdf`, `cipher`, `keys`, `tokens`) até T002 passar (docs/04 §3; FR-003, FR-004, FR-013).
+- [X] T004 Estender `CofreError` com `headers` e `details`, acrescentar os códigos de FR-014 ao catálogo e fazer o handler repassá-los (spec FR-014; contrato).
 
 ## Phase 3: US1 — Cadastro (P1) 🎯
 
