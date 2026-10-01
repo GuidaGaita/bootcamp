@@ -14,6 +14,7 @@ from cofre.core.errors import (
     UnauthenticatedError,
 )
 from cofre.crypto import hashing, kdf, keys
+from cofre.repositories.credentials import CredentialRepository
 from cofre.repositories.models import User
 from cofre.repositories.sessions import SessionRepository
 from cofre.repositories.users import UserRepository
@@ -29,6 +30,7 @@ class AccountService:
         self._settings = settings
         self._users = UserRepository(db)
         self._sessions = SessionRepository(db)
+        self._credentials = CredentialRepository(db)
         self._throttle = ThrottleService(db, clock, settings)
 
     def _key_material(self, password: str, user_id: str, dek: bytes) -> dict[str, object]:
@@ -110,6 +112,7 @@ class AccountService:
         user = self._user(context.user_id)
         self._check_master_password(user, password)
         self._sessions.delete_for_user(user.id)
+        self._credentials.delete_for_user(user.id)
         self._users.delete(user)
         self._throttle.reset(user.email)
         self._db.commit()

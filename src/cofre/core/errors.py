@@ -76,3 +76,22 @@ class TooManyAttemptsError(CofreError):
 
     def __init__(self, retry_after_seconds: int) -> None:
         super().__init__(headers={"Retry-After": str(max(1, retry_after_seconds))})
+
+
+class NotFoundError(CofreError):
+    """Missing resource, or one that belongs to someone else (RNF-03)."""
+
+    code = "NOT_FOUND"
+    status = 404
+
+
+class VaultLimitReachedError(CofreError):
+    code = "VAULT_LIMIT_REACHED"
+    status = 409
+
+
+class DataIntegrityError(CofreError):
+    """Stored data failed authentication. Generic 500: nothing about the data is revealed."""
+
+    code = "INTERNAL_ERROR"
+    status = 500

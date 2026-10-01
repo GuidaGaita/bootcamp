@@ -60,3 +60,16 @@ class LoginThrottle(Base):
     failed_count: Mapped[int] = mapped_column(Integer, default=0)
     locked_until: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
     updated_at: Mapped[datetime] = mapped_column(UTCDateTime, index=True)
+
+
+class Credential(Base):
+    """Every field lives inside ``ciphertext`` (ADR-0010); nothing here is in the clear."""
+
+    __tablename__ = "credentials"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), index=True)
+    ciphertext: Mapped[bytes] = mapped_column(LargeBinary)
+    enc_version: Mapped[int] = mapped_column(Integer, default=1)
+    created_at: Mapped[datetime] = mapped_column(UTCDateTime)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime)

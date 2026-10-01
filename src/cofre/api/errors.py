@@ -24,6 +24,7 @@ CATALOG: dict[str, tuple[int, str]] = {
     "INVALID_MASTER_PASSWORD": (403, "Senha mestra incorreta."),
     "EMAIL_ALREADY_REGISTERED": (409, "Já existe uma conta com este e-mail."),
     "TOO_MANY_ATTEMPTS": (429, "Muitas tentativas. Tente novamente mais tarde."),
+    "VAULT_LIMIT_REACHED": (409, "Limite de credenciais atingido."),
 }
 
 _HTTP_STATUS_CODES = {404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
