@@ -4,9 +4,9 @@
 
 **Created**: 2026-09-30
 
-**Status**: Aprovada
+**Status**: Implementada
 
-**Versão**: 1.0.0
+**Versão**: 1.0.1
 
 **Input**: User description: "Unidade 002 — Contas e sessões. Escopo: RF-02 a RF-07; RN-01 a RN-05, RN-12, RN-14, RN-16; RNF-02, RNF-04 a RNF-07. Cadastro, login com bloqueio, sessão com token opaco, logout, consulta de conta, troca de senha mestra e exclusão de conta."
 
@@ -76,8 +76,8 @@ Casos transversais de docs/07 aplicáveis à unidade: nenhum segredo (senha, tok
 - **FR-003**: O cadastro DEVE guardar apenas o hash Argon2id da senha, um `kdf_salt` independente, os parâmetros do KDF e a DEK aleatória embrulhada (AES-256-GCM, AAD `cofre:dek:v1:{user_id}`) pela KEK derivada, conforme docs/04 §3 e §4 (RNF-02, RNF-05).
 - **FR-004**: `POST /api/v1/sessions` DEVE verificar a senha, devolver `token` (32 bytes aleatórios em base64url sem padding) e `expires_at`, e guardar só `SHA-256(token)` e a DEK embrulhada pela chave de sessão (HKDF-SHA256, AAD `cofre:session-dek:v1:{session_id}`); a expiração é absoluta, `COFRE_SESSION_TTL_MINUTES` (padrão 30); sessões expiradas do usuário são removidas no login (RF-03, RN-05, RNF-06).
 - **FR-005**: A falha de login DEVE responder 401 `INVALID_CREDENTIALS` com a mesma mensagem para senha errada e e-mail inexistente; para e-mail inexistente, DEVE verificar a senha contra um hash fictício com os mesmos parâmetros (RN-04, docs/04 A3).
-- **FR-006**: O login DEVE ser bloqueado após `COFRE_LOGIN_MAX_ATTEMPTS` (5) falhas seguidas por `COFRE_LOGIN_LOCK_MINUTES` (15) para um mesmo e-mail normalizado, cadastrado ou não, com 429 `TOO_MANY_ATTEMPTS` e `Retry-After` em segundos; o bloqueio é consultado **antes** de verificar a senha; o sucesso zera o contador; o controle usa `SHA-256(e-mail normalizado)` como chave (RN-14, RNF-07).
-- **FR-007**: Rotas autenticadas DEVEM ler `Authorization: Bearer <token>` e responder 401 `UNAUTHENTICATED` se o cabeçalho faltar, o token não decodificar em exatamente 32 bytes, a sessão não existir ou estiver expirada; a DEK só existe em memória durante a requisição (RN-05, RNF-06).
+- **FR-006**: O login DEVE ser bloqueado após `COFRE_LOGIN_MAX_ATTEMPTS` (5) falhas seguidas por `COFRE_LOGIN_LOCK_MINUTES` (15) para um mesmo e-mail normalizado, cadastrado ou não, com 429 `TOO_MANY_ATTEMPTS` e `Retry-After` em segundos; o bloqueio é consultado **antes** de verificar a senha; o sucesso zera o contador; o controle usa `SHA-256(e-mail normalizado)` como chave. A tentativa é **contada antes** de verificar a senha, com uma operação atômica, para que tentativas paralelas não ultrapassem o limite; linhas sem atividade há mais de 24 h e sem bloqueio ativo são descartadas (RN-14, RNF-07).
+- **FR-007**: Rotas autenticadas DEVEM ler `Authorization: Bearer <token>` e responder 401 `UNAUTHENTICATED` se o cabeçalho faltar, o token não decodificar em exatamente 32 bytes, a sessão não existir ou estiver expirada, com o cabeçalho `WWW-Authenticate: Bearer`; a DEK só existe em memória durante a requisição (RN-05, RNF-06).
 - **FR-008**: `DELETE /api/v1/sessions/current` DEVE apagar a sessão e responder 204 (RF-04).
 - **FR-009**: `GET /api/v1/accounts/me` DEVE responder 200 com `id`, `email` e `created_at` (RF-05).
 - **FR-010**: `PUT /api/v1/accounts/me/master-password` DEVE, com a senha atual correta, gerar novo hash e novo `kdf_salt`, re-embrulhar a **mesma** DEK, zerar o contador do e-mail, remover **todas** as sessões e responder 204 (RF-06, RN-05).
@@ -109,3 +109,5 @@ Casos transversais de docs/07 aplicáveis à unidade: nenhum segredo (senha, tok
 | Versão | Data | Mudança | Motivo | Origem |
 |--------|------|---------|--------|--------|
 | 1.0.0 | 2026-09-30 | Versão aprovada | — | PR de spec das unidades 002 e 003 |
+| 1.0.0 | 2026-10-01 | Status alterado para Implementada; conteúdo sem mudança | Fase B concluída | PR de implementação da unidade 002 |
+| 1.0.1 | 2026-10-01 | FR-006: tentativa contada antes da verificação e limpeza de linhas ociosas (24 h); FR-007: 401 inclui `WWW-Authenticate: Bearer`; campos de senha e e-mail com limites estruturais (1024 e 320) | A contagem depois da verificação não era atômica e deixava passar tentativas paralelas; linhas de e-mails inexistentes cresciam sem limite | Revisão assistida por IA do PR #69 (R-026) |

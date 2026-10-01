@@ -9,6 +9,8 @@ dependencies = [
     "uvicorn>=0.30",
     "pydantic-settings>=2.4",
     "sqlalchemy>=2.0",
+    "argon2-cffi>=25.1.0",
+    "cryptography>=50.0.2",
 ]
 
 [dependency-groups]
@@ -36,7 +38,7 @@ select = ["E", "W", "F", "I", "B", "UP", "S", "ANN", "N"]
 ignore = ["ANN202"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "ANN"]
+"tests/**" = ["S101", "S105", "S106", "S608", "ANN"]  # senhas e SQL fixos só existem em testes
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
