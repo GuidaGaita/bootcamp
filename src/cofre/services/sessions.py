@@ -38,18 +38,14 @@ class SessionService:
     def login(self, email: str, password: str) -> tuple[str, datetime]:
         email = normalize_email(email)
         password = hashing.normalize_password(password)
-        self._throttle.ensure_not_locked(email)  # before any password check (RN-14)
+        attempt = self._throttle.begin_attempt(email)  # counted before the check (RN-14)
 
         user = self._users.get_by_email(email)
         s = self._settings
-        stored = (
-            user.password_hash
-            if user
-            else hashing.dummy_hash(s.argon2_memory_kib, s.argon2_time_cost, s.argon2_parallelism)
-        )
+        stored = user.password_hash if user else hashing.dummy_hash(*s.argon2_cost)
         verified = hashing.verify_password(stored, password)  # always runs: equal timing (A3)
         if user is None or not verified:
-            self._throttle.register_failure(email)
+            self._throttle.register_failure(email, attempt)
             raise InvalidCredentialsError
 
         params = user.kdf_params

@@ -51,6 +51,9 @@ class UnauthenticatedError(CofreError):
     code = "UNAUTHENTICATED"
     status = 401
 
+    def __init__(self) -> None:
+        super().__init__(headers={"WWW-Authenticate": "Bearer"})
+
 
 class InvalidCredentialsError(CofreError):
     code = "INVALID_CREDENTIALS"

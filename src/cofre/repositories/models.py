@@ -59,4 +59,4 @@ class LoginThrottle(Base):
     email_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
     failed_count: Mapped[int] = mapped_column(Integer, default=0)
     locked_until: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
-    updated_at: Mapped[datetime] = mapped_column(UTCDateTime)
+    updated_at: Mapped[datetime] = mapped_column(UTCDateTime, index=True)

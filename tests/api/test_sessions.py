@@ -123,6 +123,7 @@ def test_invalid_authorization_header_returns_401(client, user, headers):
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "UNAUTHENTICATED"
     assert response.headers["Cache-Control"] == "no-store"
+    assert response.headers["WWW-Authenticate"] == "Bearer"
 
 
 @pytest.mark.req("RN-05")

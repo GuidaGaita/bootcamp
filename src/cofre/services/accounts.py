@@ -31,13 +31,9 @@ class AccountService:
         self._sessions = SessionRepository(db)
         self._throttle = ThrottleService(db, clock, settings)
 
-    def _cost(self) -> tuple[int, int, int]:
-        s = self._settings
-        return s.argon2_memory_kib, s.argon2_time_cost, s.argon2_parallelism
-
     def _key_material(self, password: str, user_id: str, dek: bytes) -> dict[str, object]:
         """New hash, salt, KDF parameters and wrapped DEK for ``password``."""
-        memory, time_cost, parallelism = self._cost()
+        memory, time_cost, parallelism = self._settings.argon2_cost
         salt = secrets.token_bytes(16)
         kek = kdf.derive_kek(password, salt, memory, time_cost, parallelism)
         return {
@@ -87,10 +83,10 @@ class AccountService:
 
     def _check_master_password(self, user: User, password: str) -> None:
         """RN-16: lock check, then verification; a failure is counted and may revoke sessions."""
-        self._throttle.ensure_not_locked(user.email)
+        attempt = self._throttle.begin_attempt(user.email)
         if hashing.verify_password(user.password_hash, hashing.normalize_password(password)):
             return
-        if self._throttle.register_failure(user.email):
+        if self._throttle.register_failure(user.email, attempt):
             self._sessions.delete_for_user(user.id)
             self._db.commit()
         raise InvalidMasterPasswordError

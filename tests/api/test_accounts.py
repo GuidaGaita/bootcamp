@@ -85,3 +85,14 @@ def test_database_never_stores_the_master_password(client, app):
     assert row.password_hash.startswith("$argon2id$")
     assert len(row.kdf_salt) == 16
     assert len(row.wrapped_dek) == 12 + 32 + 16
+
+
+@pytest.mark.req("RF-02", "RNF-04")
+@pytest.mark.parametrize(
+    ("email", "password"), [("a@x.co", "x" * 1025), ("a" * 321, VALID_PASSWORD)]
+)
+def test_oversized_fields_are_refused_before_hashing(client, email, password):
+    response = register(client, email, password)
+
+    assert response.status_code == 422
+    assert password not in response.text
