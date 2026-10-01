@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -83,6 +85,10 @@ def test_get_returns_every_field_including_the_password(auth_client):
         ("url", "ftp://x"),
         ("url", "http://"),
         ("url", "https://a.co/" + "p" * 2040),
+        ("url", " https://a.co"),
+        ("url", "ht\ntps://evil.example"),
+        ("url", "https://a.co/\tpath"),
+        ("url", "https://a.co/a b"),
         ("notes", "n" * 10_001),
     ],
 )
@@ -259,7 +265,10 @@ def test_unknown_uuid_and_other_users_id_give_the_same_response(auth_client_fact
 @pytest.mark.req("RF-11", "RNF-03")
 @pytest.mark.parametrize("method", ["get", "patch", "delete"])
 def test_id_that_is_not_a_uuid_returns_422(auth_client, method):
-    response = getattr(auth_client, method)(f"{URL}/nao-e-uuid")
+    # PATCH gets a valid body, so the 422 can only come from the id.
+    kwargs = {"json": {"title": "x"}} if method == "patch" else {}
+
+    response = getattr(auth_client, method)(f"{URL}/nao-e-uuid", **kwargs)
 
     assert response.status_code == 422
 
@@ -338,3 +347,27 @@ def test_deleting_the_account_deletes_its_credentials(app, auth_client_factory):
     with app.state.engine.connect() as connection:
         rows = connection.execute(text("SELECT user_id FROM credentials")).all()
     assert [row.user_id for row in rows] == [bia.user.id]
+
+
+@pytest.mark.req("RN-07", "RNF-03")
+def test_parallel_creates_cannot_exceed_the_vault_limit(small_vault):
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        results = pool.map(lambda n: _create(small_vault, title=str(n)), range(10))
+        statuses = [response.status_code for response in results]
+
+    assert statuses.count(201) == 3 and statuses.count(409) == 7
+    assert small_vault.get(URL).json()["total"] == 3
+
+
+@pytest.mark.req("RF-12")
+def test_parallel_patches_of_different_fields_do_not_overwrite_each_other(auth_client):
+    for round_number in range(8):
+        created = _create(auth_client, title=f"c{round_number}").json()
+        url = f"{URL}/{created['id']}"
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first = pool.submit(auth_client.patch, url, json={"username": "novo-usuario"})
+            second = pool.submit(auth_client.patch, url, json={"notes": "novas-notas"})
+            assert first.result().status_code == second.result().status_code == 200
+
+        stored = auth_client.get(url).json()
+        assert (stored["username"], stored["notes"]) == ("novo-usuario", "novas-notas")

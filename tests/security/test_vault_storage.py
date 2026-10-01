@@ -123,7 +123,7 @@ def test_secrets_never_reach_logs_or_non_get_responses(auth_client, caplog, caps
 
     for response in (created, listed, patched):
         assert "MARCADOR-SENHA" not in response.text and "MARCADOR-NOVA" not in response.text
-    assert MARKERS["password"] in fetched.text or "MARCADOR-NOVA" in fetched.text  # only RF-11
+    assert fetched.json()["password"] == "MARCADOR-NOVA"  # RF-11 is the only place it appears
     emitted = "\n".join(JsonFormatter().format(r) for r in caplog.records)
     captured = capsys.readouterr()
     for output in (
@@ -134,3 +134,17 @@ def test_secrets_never_reach_logs_or_non_get_responses(auth_client, caplog, caps
         captured.err,
     ):
         assert "MARCADOR" not in output
+
+
+def test_integrity_failure_is_logged_with_the_id_only(app, auth_client, caplog):
+    created = _create(auth_client)
+    _set_ciphertext(app, created["id"], b"x" * 40)
+
+    with caplog.at_level(logging.INFO, logger="cofre"):
+        auth_client.get(f"{URL}/{created['id']}")
+
+    (record,) = [
+        r for r in caplog.records if getattr(r, "event", None) == "credential_integrity_failure"
+    ]
+    assert record.levelno == logging.ERROR and record.credential_id == created["id"]
+    assert "MARCADOR" not in JsonFormatter().format(record) and "MARCADOR" not in caplog.text

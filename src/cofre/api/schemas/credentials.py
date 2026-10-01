@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Any, Self
 from urllib.parse import urlsplit
 
-from pydantic import BaseModel, Field, SecretStr, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 
 
 def _check_title(value: str | None) -> str | None:
@@ -15,6 +15,9 @@ def _check_title(value: str | None) -> str | None:
 
 def _check_url(value: str | None) -> str | None:
     if value is not None:
+        # urlsplit() silently strips spaces, tabs and newlines, so validate the raw string.
+        if any(ch.isspace() or ord(ch) < 32 or ord(ch) == 127 for ch in value):
+            raise ValueError("URL com espaço ou caractere de controle")
         parts = urlsplit(value)
         if parts.scheme not in ("http", "https") or not parts.netloc:
             raise ValueError("URL deve usar http ou https")
@@ -66,6 +69,8 @@ class CredentialUpdate(BaseModel):
 
 
 class CredentialResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     title: str
     username: str | None
@@ -80,6 +85,8 @@ class CredentialFullResponse(CredentialResponse):
 
 
 class CredentialItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: str
     title: str
     username: str | None

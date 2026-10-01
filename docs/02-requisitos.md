@@ -115,7 +115,8 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 | RF-16 | 005 | — | — | Planejado |
 | RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [tests/](../tests/) (mapa completo em `reports/rastreabilidade.md` e no [relatório do incremento 1](relatorios/2026-09-30-incremento-1.md)) | Implementado |
 | RNF-01 .. RNF-07, RNF-12 | 002 e 003 | [spec 002](../specs/002-contas-e-sessoes/spec.md), [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [tests/security/](../tests/security/), [tests/perf/](../tests/perf/) | Implementado |
-| RN-01 .. RN-16 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
+| RN-01 .. RN-09, RN-12 .. RN-16 | 002 e 003 | [spec 002](../specs/002-contas-e-sessoes/spec.md), [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [tests/](../tests/) (mapa em `reports/rastreabilidade.md`) | Implementado |
+| RN-10, RN-11 | 004 | — | — | Planejado |
 
 **Legenda de status:** Planejado → Especificado (spec aprovada) → Implementado (testes verdes) → Revisado (houve refinamento registrado).
 

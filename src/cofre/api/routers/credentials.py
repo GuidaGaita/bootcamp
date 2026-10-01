@@ -14,19 +14,15 @@ from cofre.api.schemas.credentials import (
     CredentialResponse,
     CredentialUpdate,
 )
-from cofre.services.vault import CredentialData, VaultService
+from cofre.services.vault import VaultService
 
 router = APIRouter(prefix="/api/v1/credentials", tags=["credentials"])
 Service = Annotated[VaultService, Depends(get_vault_service)]
 
 
-def _public(data: CredentialData) -> CredentialResponse:
-    return CredentialResponse(**{k: v for k, v in vars(data).items() if k != "password"})
-
-
 @router.post("", status_code=201, summary="Cria uma credencial.")
 def create(payload: CredentialCreate, context: CurrentUser, service: Service) -> CredentialResponse:
-    return _public(service.create(context, payload.content()))
+    return CredentialResponse.model_validate(service.create(context, payload.content()))
 
 
 @router.get("", summary="Lista ou busca credenciais, sem as senhas.")
@@ -39,9 +35,7 @@ def list_credentials(
 ) -> CredentialPage:
     items, total = service.list(context, q, limit, offset)
     return CredentialPage(
-        items=[
-            CredentialItem(**{k: getattr(i, k) for k in CredentialItem.model_fields}) for i in items
-        ],
+        items=[CredentialItem.model_validate(item) for item in items],
         total=total,
         limit=limit,
         offset=offset,
@@ -52,14 +46,16 @@ def list_credentials(
 def get_credential(
     credential_id: UUID, context: CurrentUser, service: Service
 ) -> CredentialFullResponse:
-    return CredentialFullResponse(**vars(service.get(context, str(credential_id))))
+    return CredentialFullResponse.model_validate(service.get(context, str(credential_id)))
 
 
 @router.patch("/{credential_id}", summary="Atualiza parcialmente uma credencial.")
 def update(
     credential_id: UUID, payload: CredentialUpdate, context: CurrentUser, service: Service
 ) -> CredentialResponse:
-    return _public(service.update(context, str(credential_id), payload.changes()))
+    return CredentialResponse.model_validate(
+        service.update(context, str(credential_id), payload.changes())
+    )
 
 
 @router.delete("/{credential_id}", status_code=204, summary="Exclui uma credencial.")
