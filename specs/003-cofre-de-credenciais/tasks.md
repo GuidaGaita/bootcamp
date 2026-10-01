@@ -25,4 +25,4 @@ description: "Lista de tarefas da unidade 003 — Cofre de credenciais"
 ## Phase 3: Desempenho e fechamento
 
 - [X] T006 Escrever `tests/perf/test_vault_perf.py` (`@pytest.mark.perf`, `req("RNF-12")`) com 1.000 credenciais de 1 KB e p95 < 200 ms para criar, listar, consultar e atualizar (FR-013); rodar com `uv run pytest -m perf --no-cov`.
-- [ ] T007 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-3.md`.
+- [X] T007 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-3.md`.

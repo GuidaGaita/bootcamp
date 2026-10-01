@@ -1,0 +1,64 @@
+# Relatório de execução — Incremento 3
+
+| Campo | Valor |
+|-------|-------|
+| Data | 2026-10-01 |
+| Commit | branch `feature/003-cofre-de-credenciais` |
+| Ambiente | `uv run pytest` local (Windows 11, Python 3.13.5); CI e `docker compose run --rm tests` no PR |
+| Comando | `pytest` (seleção padrão com gate de 85%) e `pytest -m perf --no-cov` |
+
+## Resumo
+
+| Total | Passaram | Falharam | Pulados | Duração | Cobertura (linhas + ramificações) |
+|------:|---------:|---------:|--------:|--------:|----------:|
+| 319 | 319 | 0 | 0 | 36 s e 78 s em duas execuções (carga da máquina) | 99% |
+
+## Por nível
+
+| Marcador | Testes | Resultado |
+|----------|-------:|-----------|
+| unit | 142 | ✅ |
+| integration | 17 | ✅ |
+| api | 139 | ✅ |
+| security | 21 | ✅ |
+| perf | 1 | ✅ (execução separada) |
+| smoke | 5 | execução separada; não alterados nesta unidade |
+
+## Desempenho (RNF-12)
+
+Cofre com 990 credenciais de cerca de 1 KB cada (mais as criadas durante a medição), 20 amostras por operação, p95 em segundos pelo cliente HTTP de teste, na máquina do mantenedor:
+
+| Operação | p95 | Meta |
+|----------|----:|-----:|
+| Criar | 0,014 | < 0,200 |
+| Listar (100 itens, decifrando o cofre inteiro) | 0,089 | < 0,200 |
+| Buscar | 0,033 | < 0,200 |
+| Consultar | 0,007 | < 0,200 |
+| Atualizar | 0,012 | < 0,200 |
+
+## Rastreabilidade
+
+Extraído de `reports/rastreabilidade.md`.
+
+| Requisito | Testes | Situação |
+|-----------|-------:|----------|
+| RF-08 | 20 | ✅ |
+| RF-09 | 7 | ✅ |
+| RF-10 | 6 | ✅ |
+| RF-11 | 10 | ✅ |
+| RF-12 | 13 | ✅ |
+| RF-13 | 6 | ✅ |
+| RN-06 / RN-07 / RN-08 / RN-09 | 15 / 1 / 2 / 6 | ✅ |
+| RN-13 / RN-15 | 6 / 1 | ✅ |
+| RNF-01 / RNF-03 / RNF-04 | 35 / 13 / 63 | ✅ |
+
+Requisitos *Must* sem teste: só o RF-14 (unidade 004).
+
+## Observações
+
+- Todos os testes foram escritos antes da implementação e vistos falhando; a primeira execução completa terminou com 2 falhas, ambas defeitos do próprio teste (verificação de "valor não ecoado" aplicada a uma string vazia), corrigidos sem mudar o código de produção.
+- A cobertura das camadas novas (`vault`, repositório, rotas e esquemas de credenciais) é de 100%.
+- Segurança verificada por teste: nenhum campo da credencial no arquivo SQLite; `ciphertext` adulterado, truncado ou copiado entre linhas e entre usuários falha com 500 genérico; cada cifragem usa nonce novo; criar, atualizar e listar nunca devolvem a senha; nada vaza para logs.
+- A exclusão de conta passou a apagar também as credenciais (RN-12), com teste.
+- A suíte levou 36 s e 78 s em duas execuções no mesmo código; o critério de 60 s da spec 001 (SC-006) depende da carga da máquina. O CI é a referência.
+- Fluxo enxuto, sem `/speckit-*` (ver `docs/sessoes/2026-09-30-fase-a-unidades-002-003.md`). Revisão assistida por IA: ver os comentários do PR de implementação.

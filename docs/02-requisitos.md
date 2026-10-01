@@ -110,11 +110,11 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 |-----------|---------|------|--------|--------|
 | RF-01 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [test_health.py](../tests/api/test_health.py), [test_health_service.py](../tests/integration/test_health_service.py) | Implementado |
 | RF-02 .. RF-07 | 002 | [spec 002](../specs/002-contas-e-sessoes/spec.md) | [test_accounts.py](../tests/api/test_accounts.py), [test_sessions.py](../tests/api/test_sessions.py), [test_account_management.py](../tests/api/test_account_management.py), [test_crypto.py](../tests/unit/test_crypto.py) | Implementado |
-| RF-08 .. RF-13 | 003 | [spec 003](../specs/003-cofre-de-credenciais/spec.md) | — | Especificado |
+| RF-08 .. RF-13 | 003 | [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [test_credentials.py](../tests/api/test_credentials.py), [test_vault_storage.py](../tests/security/test_vault_storage.py), [test_vault_perf.py](../tests/perf/test_vault_perf.py) | Implementado |
 | RF-14, RF-15 | 004 | — | — | Planejado |
 | RF-16 | 005 | — | — | Planejado |
 | RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [tests/](../tests/) (mapa completo em `reports/rastreabilidade.md` e no [relatório do incremento 1](relatorios/2026-09-30-incremento-1.md)) | Implementado |
-| RNF-01 .. RNF-07, RNF-12 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
+| RNF-01 .. RNF-07, RNF-12 | 002 e 003 | [spec 002](../specs/002-contas-e-sessoes/spec.md), [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [tests/security/](../tests/security/), [tests/perf/](../tests/perf/) | Implementado |
 | RN-01 .. RN-16 | conforme [09-roadmap.md](09-roadmap.md#2-decomposição-em-unidades) | — | — | Planejado |
 
 **Legenda de status:** Planejado → Especificado (spec aprovada) → Implementado (testes verdes) → Revisado (houve refinamento registrado).
