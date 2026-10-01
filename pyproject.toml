@@ -38,7 +38,7 @@ select = ["E", "W", "F", "I", "B", "UP", "S", "ANN", "N"]
 ignore = ["ANN202"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S101", "ANN"]
+"tests/**" = ["S101", "S105", "S106", "S608", "ANN"]  # senhas e SQL fixos só existem em testes
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

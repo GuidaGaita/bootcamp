@@ -9,7 +9,7 @@ from fastapi import FastAPI
 import cofre
 from cofre.api.errors import register_error_handlers
 from cofre.api.middleware import RequestContextMiddleware
-from cofre.api.routers import health
+from cofre.api.routers import accounts, health, sessions
 from cofre.core.clock import Clock, SystemClock
 from cofre.core.config import Settings, load_settings
 from cofre.core.logging import configure_logging, log_event
@@ -58,5 +58,7 @@ def create_app(settings: Settings | None = None, clock: Clock | None = None) -> 
 
     register_error_handlers(app)
     app.include_router(health.router)
+    app.include_router(accounts.router)
+    app.include_router(sessions.router)
     app.add_middleware(RequestContextMiddleware)
     return app
