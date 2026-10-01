@@ -44,8 +44,9 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | Incremento | Situação |
 |------------|----------|
 | 0 — Documentação e governança | Concluído com o merge do [PR #1](https://github.com/GuidaGaita/bootcamp/pull/1) (release `v0.1.0`); auditoria da documentação na versão `v0.1.1` |
-| 1 — Fundação | Unidade 001 implementada ([PR #63](https://github.com/GuidaGaita/bootcamp/pull/63)) e *status checks* do CI exigidos na proteção; falta publicar a release `v0.2.0` |
-| 2 a 5 | Planejado |
+| 1 — Fundação | Concluído: release `v0.2.0` |
+| 2 — Contas e sessões | Unidade 002 implementada (PR de implementação); falta a release `v0.3.0` |
+| 3 a 5 | Planejado (a spec da unidade 003 já está aprovada) |
 
 ## 4. Histórico de revisões
 

@@ -109,7 +109,7 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 | Requisito | Unidade | Spec | Testes | Status |
 |-----------|---------|------|--------|--------|
 | RF-01 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [test_health.py](../tests/api/test_health.py), [test_health_service.py](../tests/integration/test_health_service.py) | Implementado |
-| RF-02 .. RF-07 | 002 | [spec 002](../specs/002-contas-e-sessoes/spec.md) | — | Especificado |
+| RF-02 .. RF-07 | 002 | [spec 002](../specs/002-contas-e-sessoes/spec.md) | [test_accounts.py](../tests/api/test_accounts.py), [test_sessions.py](../tests/api/test_sessions.py), [test_account_management.py](../tests/api/test_account_management.py), [test_crypto.py](../tests/unit/test_crypto.py) | Implementado |
 | RF-08 .. RF-13 | 003 | [spec 003](../specs/003-cofre-de-credenciais/spec.md) | — | Especificado |
 | RF-14, RF-15 | 004 | — | — | Planejado |
 | RF-16 | 005 | — | — | Planejado |

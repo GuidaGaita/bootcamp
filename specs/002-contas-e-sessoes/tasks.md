@@ -41,4 +41,4 @@ description: "Lista de tarefas da unidade 002 — Contas e sessões"
 
 - [X] T012 [P] Escrever `tests/security/test_auth_hygiene.py` (`req("RNF-04","RNF-05")`): senha e token não aparecem em logs, respostas de erro nem `repr` dos schemas; nenhuma chamada a `random` em `src/cofre`.
 - [X] T013 Acrescentar a `tests/conftest.py` as fixtures `make_user`, `auth_client` e `auth_client_factory` (FR-015) e usá-las nos testes das fases 4 e 5.
-- [ ] T014 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-2.md`.
+- [X] T014 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-2.md`.
