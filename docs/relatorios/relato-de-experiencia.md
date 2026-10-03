@@ -14,7 +14,8 @@ Projeto individual do Bootcamp III: o **Cofre**, uma API REST multiusuário de g
 | Incremento 1 | Fundação: `/health`, erros padronizados, configuração, logs, harness de testes, Docker e CI | PRs #7, #63, #64, #65; `v0.2.0` |
 | Incremento 2 | Contas e sessões: cadastro, login com bloqueio, token, troca de senha, exclusão | PRs #66, #69 |
 | Incremento 3 | Cofre de credenciais cifradas, com busca e teste de desempenho | PR #70 |
-| Incremento 4 | Gerador e avaliador de senhas | PR #71 (spec) |
+| Incremento 4 | Gerador e avaliador de senhas | PRs #71, #74 |
+| Fechamento | Relatórios, licença MIT, README final, ADRs consolidados e release `v1.0.0` | PRs #72, #75 e o de fechamento |
 
 ## 3. Desafios
 

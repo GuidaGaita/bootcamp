@@ -2,6 +2,8 @@
 
 Registro das decisões arquiteturais do Cofre, no formato **MADR simplificado** em pt-BR ([ADR-0001](0001-registrar-decisoes-com-adrs.md)).
 
+Visão consolidada, com trade-offs e o que a prática mostrou: [consolidado.md](consolidado.md).
+
 ## Como registrar uma decisão
 
 1. Copie o [template](template.md) para `NNNN-titulo-em-kebab-case.md`, usando o próximo número livre.
