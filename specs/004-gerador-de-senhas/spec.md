@@ -4,9 +4,9 @@
 
 **Created**: 2026-10-03
 
-**Status**: Aprovada
+**Status**: Implementada
 
-**Versão**: 1.0.0
+**Versão**: 1.0.1
 
 **Input**: User description: "Unidade 004 — Gerador e avaliador de senhas. Escopo: RF-14, RF-15; RN-10, RN-11. Dois endpoints públicos, sem acesso a dados de usuário: gerar senhas aleatórias e avaliar a força de uma senha."
 
@@ -56,10 +56,10 @@ Acrescentados por esta spec: duas gerações seguidas diferem; a distribuição 
 - **FR-004**: Os conjuntos DEVEM ser `lowercase` = `a–z`, `uppercase` = `A–Z`, `digits` = `0–9` e `symbols` = `!@#$%^&*()-_=+[]{}|;:,.<>?/~`. Com `exclude_ambiguous`, os caracteres `0 O o 1 l I |` DEVEM ser removidos de todos os conjuntos antes do sorteio (RN-10).
 - **FR-005**: Toda a aleatoriedade DEVE vir de `secrets` (`randbelow`), nunca de `random`; a fonte é injetável no gerador, para teste unitário, e a ordem final dos caracteres DEVE ser embaralhada por Fisher-Yates com a mesma fonte (RNF-05, docs/03 §5).
 - **FR-006**: `POST /api/v1/passwords/strength`, público, DEVE aceitar `{"password": str}` com 1 a 1024 caracteres (422 fora disso) e responder 200 com `score` (0 a 4), `weak` (`true` quando `score <= 2`), `crack_time_seconds`, `crack_time_display` e `suggestions` (RF-15, RN-11).
-- **FR-007**: A entropia estimada, em bits, DEVE ser: `distintos × log2(tamanho_do_conjunto) + repetidos × 1`, em que `distintos` é o número de caracteres diferentes, `repetidos` é `len − distintos` e o tamanho do conjunto soma 26 se há minúsculas, 26 se há maiúsculas, 10 se há dígitos, 33 se há símbolos ASCII e 100 se há caracteres não ASCII. Se a senha, em minúsculas, está na lista de senhas comuns do código, a entropia é 5 bits; se é uma sequência (3 ou mais caracteres seguidos em passo +1 ou −1 de código), é `len` bits (RN-11).
+- **FR-007**: A entropia estimada, em bits, DEVE ser: `distintos × log2(tamanho_do_conjunto) + min(repetidos, distintos)`, em que `distintos` é o número de caracteres diferentes, `repetidos` é `len − distintos` (cada repetição soma 1 bit, até no máximo `distintos` bits, para que repetir o mesmo caractere não aumente a nota) e o tamanho do conjunto soma 26 se há minúsculas, 26 se há maiúsculas, 10 se há dígitos, 33 se há símbolos ASCII e 100 se há caracteres não ASCII. Se a senha, em minúsculas, está na lista de senhas comuns do código, a entropia é 5 bits; se **a senha inteira** é uma sequência (3 ou mais caracteres seguidos em passo +1 ou −1 de código), é `len` bits; senha vazia tem 0 bit. Uma sequência embutida numa senha maior não é detectada (limitação conhecida) (RN-11).
 - **FR-008**: A pontuação DEVE ser 0 abaixo de 28 bits, 1 abaixo de 36, 2 abaixo de 60, 3 abaixo de 80 e 4 a partir de 80 (RN-11).
 - **FR-009**: O tempo de quebra DEVE ser `2^bits / (2 × 10^10)` segundos (ataque offline rápido, média de metade do espaço); `crack_time_display` DEVE ser "instantaneamente" abaixo de 1 s, depois segundos, minutos, horas, dias e anos, e "séculos" a partir de 100 anos.
-- **FR-010**: As sugestões, em pt-BR, DEVEM ser: menos de 12 caracteres → "Use pelo menos 12 caracteres."; sem minúscula ou sem maiúscula → "Misture letras maiúsculas e minúsculas."; sem dígito → "Inclua números."; sem símbolo → "Inclua símbolos."; mais de 30% de caracteres repetidos → "Evite caracteres repetidos."; senha comum → "Essa senha é muito comum."; sequência → "Evite sequências como abc ou 123.". Lista vazia quando nenhuma se aplica.
+- **FR-010**: As sugestões, em pt-BR, DEVEM ser: menos de 12 caracteres → "Use pelo menos 12 caracteres."; sem minúscula ou sem maiúscula (contam também as letras acentuadas) → "Misture letras maiúsculas e minúsculas."; sem dígito → "Inclua números."; sem símbolo → "Inclua símbolos."; mais de 30% de caracteres repetidos → "Evite caracteres repetidos."; senha comum → "Essa senha é muito comum."; sequência → "Evite sequências como abc ou 123.". Lista vazia quando nenhuma se aplica.
 - **FR-011**: A senha avaliada e a senha gerada NUNCA DEVEM ser registradas em log; a avaliada também não aparece em respostas nem em `repr` (RNF-04, docs/04 §5).
 
 ## Success Criteria *(mandatory)*
@@ -79,3 +79,5 @@ Acrescentados por esta spec: duas gerações seguidas diferem; a distribuição 
 | Versão | Data | Mudança | Motivo | Origem |
 |--------|------|---------|--------|--------|
 | 1.0.0 | 2026-10-03 | Versão aprovada | — | PR de spec da unidade 004 |
+| 1.0.0 | 2026-10-03 | Status alterado para Implementada; conteúdo sem mudança | Fase B concluída | PR de implementação da unidade 004 |
+| 1.0.1 | 2026-10-03 | FR-007: repetições somam no máximo `distintos` bits; sequência vale para a senha inteira (limitação documentada); senha vazia tem 0 bit. FR-010: letras acentuadas contam como minúsculas e maiúsculas | `"a" × 100` recebia a nota máxima; a redação sobre sequências era ambígua; a senha vazia causava erro em quem chamasse o serviço sem o esquema; `ÁÉÍ` não contava como maiúscula | Revisão assistida por IA do PR #74 (R-027) |

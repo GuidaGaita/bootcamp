@@ -46,8 +46,9 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | 0 — Documentação e governança | Concluído com o merge do [PR #1](https://github.com/GuidaGaita/bootcamp/pull/1) (release `v0.1.0`); auditoria da documentação na versão `v0.1.1` |
 | 1 — Fundação | Concluído: release `v0.2.0` |
 | 2 — Contas e sessões | Implementado ([PR #69](https://github.com/GuidaGaita/bootcamp/pull/69)) |
-| 3 — Cofre de credenciais | Unidade 003 implementada (PR de implementação); falta a release `v0.4.0` |
-| 4 e 5 | Planejado |
+| 3 — Cofre de credenciais | Implementado ([PR #70](https://github.com/GuidaGaita/bootcamp/pull/70)) |
+| 4 — Gerador e avaliador | Unidade 004 implementada (PR de implementação) |
+| 5 — Saúde do cofre | Planejado (RF-16 é *Could*) |
 
 ## 4. Histórico de revisões
 

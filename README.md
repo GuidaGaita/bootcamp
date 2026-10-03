@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incrementos 1 a 3 implementados (fundação, contas e sessões, cofre de credenciais cifradas) · faltam o gerador e avaliador de senhas e o relatório de saúde do cofre · [roadmap](docs/09-roadmap.md)
+**Status:** Incrementos 1 a 4 implementados (fundação, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas) · falta só o relatório de saúde do cofre (*Could*) · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -40,8 +40,8 @@ Detalhes em [docs/01-visao-geral.md](docs/01-visao-geral.md).
 | Exclusão de conta | RF-07 | Could | Implementado |
 | CRUD de credenciais cifradas, com listagem paginada | RF-08, RF-09, RF-11 a RF-13 | Must | Implementado |
 | Busca de credenciais | RF-10 | Should | Implementado |
-| Gerador de senhas | RF-14 | Must | Planejado |
-| Avaliador de força de senha | RF-15 | Should | Planejado |
+| Gerador de senhas | RF-14 | Must | Implementado |
+| Avaliador de força de senha | RF-15 | Should | Implementado |
 | Relatório de saúde do cofre (senhas fracas e reutilizadas) | RF-16 | Could | Planejado |
 
 Catálogo completo de requisitos funcionais, não funcionais e regras de negócio: [docs/02-requisitos.md](docs/02-requisitos.md).
@@ -166,7 +166,7 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Relatório mais recente: [incremento 3 (2026-10-01)](docs/relatorios/2026-10-01-incremento-3.md); anteriores: [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
+Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md); anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
 
