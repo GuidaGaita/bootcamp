@@ -17,7 +17,7 @@ def test_defaults_without_authentication(client):
     assert "Authorization" not in response.request.headers
 
 
-def test_a_body_is_optional_in_practice_but_must_be_json(client):
+def test_malformed_json_is_rejected(client):
     assert (
         client.post(URL, content=b"{", headers={"Content-Type": "application/json"}).status_code
         == 422
@@ -77,3 +77,7 @@ def test_two_calls_return_different_passwords(client):
     second = client.post(URL, json={}).json()["password"]
 
     assert first != second
+
+
+def test_a_request_without_a_body_is_rejected(client):
+    assert client.post(URL).status_code == 422

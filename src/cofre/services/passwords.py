@@ -92,7 +92,9 @@ def _is_sequence(password: str) -> bool:
 
 
 def entropy_bits(password: str) -> float:
-    """FR-007: distinct characters over the pool size, repeats at one bit each."""
+    """FR-007: distinct characters over the pool size; repeats add one bit each, capped."""
+    if not password:
+        return 0.0
     if password.casefold() in COMMON_PASSWORDS:
         return 5.0
     if _is_sequence(password):
@@ -104,7 +106,8 @@ def entropy_bits(password: str) -> float:
     pool += 33 if any(c.isascii() and not c.isalnum() for c in password) else 0
     pool += 100 if any(not c.isascii() for c in password) else 0
     distinct = len(set(password))
-    return distinct * math.log2(pool) + (len(password) - distinct)
+    repeats = len(password) - distinct
+    return distinct * math.log2(pool) + min(repeats, distinct)  # a run of 'a' is not strength
 
 
 def score_for_bits(bits: float) -> int:
@@ -152,8 +155,8 @@ class StrengthEstimator:
     @staticmethod
     def _suggestions(password: str) -> list[str]:
         found: list[str] = []
-        has_lower = any(c in LOWER for c in password)
-        has_upper = any(c in UPPER for c in password)
+        has_lower = any(c.islower() for c in password)  # accented letters count too
+        has_upper = any(c.isupper() for c in password)
         if len(password) < 12:
             found.append("Use pelo menos 12 caracteres.")
         if not (has_lower and has_upper):
@@ -162,7 +165,7 @@ class StrengthEstimator:
             found.append("Inclua números.")
         if not any(c.isascii() and not c.isalnum() for c in password):
             found.append("Inclua símbolos.")
-        if (len(password) - len(set(password))) / len(password) > 0.3:
+        if password and (len(password) - len(set(password))) / len(password) > 0.3:
             found.append("Evite caracteres repetidos.")
         if password.casefold() in COMMON_PASSWORDS:
             found.append("Essa senha é muito comum.")

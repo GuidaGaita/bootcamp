@@ -12,6 +12,8 @@ from cofre.services.passwords import (
 
 pytestmark = [pytest.mark.unit, pytest.mark.req("RF-15", "RN-11")]
 
+HUGE = "".join(chr(0x4E00 + i) for i in range(1024))  # 1,024 distinct characters
+
 
 @pytest.mark.parametrize(
     ("bits", "score"),
@@ -32,8 +34,39 @@ def test_non_ascii_characters_enlarge_the_pool_by_100():
     assert entropy_bits("qwçzkp") == pytest.approx(6 * math.log2(126))
 
 
-def test_repeated_characters_cost_one_bit_each():
-    assert entropy_bits("aaaaaa") == pytest.approx(math.log2(26) + 5)
+def test_repeated_characters_add_one_bit_each_up_to_the_number_of_distinct_ones():
+    assert entropy_bits("qwmzkpqwm") == pytest.approx(6 * math.log2(26) + 3)
+    assert entropy_bits("aaaaaa") == pytest.approx(math.log2(26) + 1)  # capped at 1 distinct
+
+
+@pytest.mark.parametrize("password", ["a" * 100, "ab" * 50, "qwmzk" * 20])
+def test_repeating_characters_never_makes_a_password_strong(password):
+    result = StrengthEstimator().estimate(password)
+
+    assert result.score <= 1 and result.weak is True
+    assert "Evite caracteres repetidos." in result.suggestions
+
+
+def test_empty_password_is_handled_without_errors():
+    result = StrengthEstimator().estimate("")
+
+    assert (result.score, result.weak, result.crack_time_display) == (0, True, "instantaneamente")
+    assert "Use pelo menos 12 caracteres." in result.suggestions
+
+
+def test_accented_letters_count_as_lower_and_upper_case():
+    mixed = StrengthEstimator().estimate("ÁÉÍÓÚçãoÇÃO12!x")
+    only_upper = StrengthEstimator().estimate("ÁÉÍÓÚ12!ÇÃO")
+
+    assert "Misture letras maiúsculas e minúsculas." not in mixed.suggestions
+    assert "Misture letras maiúsculas e minúsculas." in only_upper.suggestions
+
+
+def test_a_sequence_inside_a_longer_password_is_not_detected():
+    # Known limitation (spec 004, FR-007): only a whole-password run is flagged.
+    result = StrengthEstimator().estimate("abcdefgh!Q9")
+
+    assert "Evite sequências como abc ou 123." not in result.suggestions
 
 
 def test_common_passwords_get_5_bits_in_any_case():
@@ -78,7 +111,7 @@ def test_crack_time_is_two_to_the_bits_over_twenty_billion():
 
 
 def test_crack_time_is_capped_and_finite_for_huge_entropy():
-    result = StrengthEstimator().estimate("aB3$" * 256)
+    result = StrengthEstimator().estimate(HUGE)
 
     assert result.crack_time_seconds <= 1e300 and math.isfinite(result.crack_time_seconds)
     assert result.crack_time_display == "séculos"

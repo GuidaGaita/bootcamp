@@ -45,7 +45,7 @@ def test_length_boundaries(client, size, status):
 
 
 def test_the_longest_password_still_returns_a_finite_number(client):
-    body = _post(client, "aB3$" * 256).json()
+    body = _post(client, "".join(chr(0x4E00 + i) for i in range(1024))).json()
 
     assert body["crack_time_seconds"] <= 1e300 and body["crack_time_display"] == "séculos"
     assert body["score"] == 4

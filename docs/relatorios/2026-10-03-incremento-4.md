@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|-------|
 | Data | 2026-10-03 |
-| Commit | branch `feature/004-gerador-de-senhas` |
+| Commit | branch `feature/004-gerador-de-senhas` ([PR #74](https://github.com/GuidaGaita/bootcamp/pull/74); o CI do PR é a referência reprodutível) |
 | Ambiente | `uv run pytest` local (Windows 11, Python 3.13.5); CI e `docker compose run --rm tests` no PR |
 | Comando | `pytest` (seleção padrão com gate de 85%) |
 
@@ -11,15 +11,15 @@
 
 | Total | Passaram | Falharam | Pulados | Duração | Cobertura (linhas + ramificações) |
 |------:|---------:|---------:|--------:|--------:|----------:|
-| 413 | 413 | 0 | 0 | 27 s | 99% |
+| 420 | 420 | 0 | 0 | 28 s | 99% |
 
 ## Por nível
 
 | Marcador | Testes | Resultado |
 |----------|-------:|-----------|
-| unit | 203 | ✅ |
+| unit | 209 | ✅ |
 | integration | 17 | ✅ |
-| api | 168 | ✅ |
+| api | 169 | ✅ |
 | security | 25 | ✅ |
 | perf | 1 | execução separada; não alterado nesta unidade |
 | smoke | 5 | execução separada; não alterados nesta unidade |
@@ -46,3 +46,7 @@ Extraído de `reports/rastreabilidade.md` da suíte padrão.
 - Na primeira execução, um teste falhou por defeito do próprio teste: `123456789` está na lista de senhas comuns, que tem precedência sobre a regra de sequência, conforme a spec. O teste foi corrigido, e o código de produção não mudou. Durante a escrita dos testes foi removida uma asserção vacuamente verdadeira (`... or True`) antes da primeira execução.
 - O avaliador é uma heurística própria, sem dependência nova (decisão da spec): é menos preciso que uma biblioteca de estimativa e a lista de senhas comuns é pequena. Serve de indicador, não de garantia.
 - Fluxo enxuto, sem `/speckit-*`. Revisão assistida por IA: ver os comentários do PR de implementação.
+
+## Achados da revisão
+
+A revisão assistida por IA (`/code-review`, esforço médio) achou 11 pontos no [PR #74](https://github.com/GuidaGaita/bootcamp/pull/74): 4 defeitos corrigidos com spec 1.0.1 e refinamento **R-027**, 1 teste mal nomeado corrigido e 6 mantidos com justificativa. O principal: a senha `"a" × 100` recebia a nota máxima, porque cada repetição somava 1 bit sem teto. Os testes escritos junto com o código passavam, porque verificavam a fórmula da spec e não a intenção de RN-11, o mesmo tipo de falha de "suíte verde, regra errada" dos incrementos anteriores. A senha vazia, que derrubaria o futuro relatório de saúde do cofre, e as letras acentuadas também foram corrigidas.
