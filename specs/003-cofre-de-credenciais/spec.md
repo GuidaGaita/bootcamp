@@ -4,7 +4,7 @@
 
 **Created**: 2026-09-30
 
-**Status**: Aprovada
+**Status**: Implementada
 
 **Versão**: 1.0.0
 
@@ -100,3 +100,4 @@ Transversais de docs/07: bytes do SQLite sem texto claro (RNF-01); adulteração
 | Versão | Data | Mudança | Motivo | Origem |
 |--------|------|---------|--------|--------|
 | 1.0.0 | 2026-09-30 | Versão aprovada | — | PR de spec das unidades 002 e 003 |
+| 1.0.0 | 2026-10-01 | Status alterado para Implementada; conteúdo sem mudança | Fase B concluída | PR de implementação da unidade 003 |

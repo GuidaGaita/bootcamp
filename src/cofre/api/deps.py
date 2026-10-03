@@ -12,6 +12,7 @@ from cofre.core.errors import UnauthenticatedError
 from cofre.services.accounts import AccountService
 from cofre.services.health import HealthService
 from cofre.services.sessions import AuthContext, SessionService
+from cofre.services.vault import VaultService
 
 
 def get_settings(request: Request) -> Settings:
@@ -45,6 +46,10 @@ def get_account_service(db: DbSession, clock: AppClock, settings: AppSettings) -
 
 def get_session_service(db: DbSession, clock: AppClock, settings: AppSettings) -> SessionService:
     return SessionService(db, clock, settings)
+
+
+def get_vault_service(db: DbSession, clock: AppClock, settings: AppSettings) -> VaultService:
+    return VaultService(db, clock, settings)
 
 
 def get_auth_context(
