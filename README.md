@@ -17,6 +17,7 @@
 - [Testes e evidências](#testes-e-evidências)
 - [Decisões arquiteturais (ADRs)](#decisões-arquiteturais-adrs)
 - [Documentação](#documentação)
+- [Licença](#licença)
 - [Créditos](#créditos)
 
 ## Visão geral
@@ -202,6 +203,10 @@ Relatório mais recente: [incremento 3 (2026-10-01)](docs/relatorios/2026-10-01-
 | [07 — Testes](docs/07-estrategia-de-testes.md) | Harness, níveis, casos de borda e evidências |
 | [08 — Ambiente e agentes](docs/08-ambiente-e-agentes.md) | Ambiente reprodutível e configuração do Claude Code |
 | [09 — Roadmap](docs/09-roadmap.md) | Incrementos e decomposição em unidades |
+
+## Licença
+
+Distribuído sob a licença [MIT](LICENSE).
 
 ## Créditos
 
