@@ -7,6 +7,11 @@ Evidências versionadas da execução da suíte de testes. Estratégia em [07-es
 | Relatório | Incremento | Resultado |
 |-----------|------------|-----------|
 | [2026-09-30-incremento-1.md](2026-09-30-incremento-1.md) | 1 — Fundação | 155 testes passaram, 5 de fumaça passaram, cobertura 96,18% |
+| [2026-10-01-incremento-2.md](2026-10-01-incremento-2.md) | 2 — Contas e sessões | 266 testes passaram, cobertura 98% |
+| [2026-10-01-incremento-3.md](2026-10-01-incremento-3.md) | 3 — Cofre de credenciais | 326 testes passaram, cobertura 99%, p95 de RNF-12 abaixo de 200 ms |
+| [2026-10-03-incremento-4.md](2026-10-03-incremento-4.md) | 4 — Gerador e avaliador | 420 testes passaram, cobertura 99%, nenhum requisito *Must* sem teste |
+
+Análises complementares: [relatório técnico-ético](relatorio-etico-tecnico.md) e [relato de experiência](relato-de-experiencia.md).
 
 ## Quando publicar
 

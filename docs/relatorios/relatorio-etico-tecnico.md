@@ -7,15 +7,15 @@
 | Medida | Valor |
 |--------|------:|
 | Período (primeiro commit a esta data) | 2026-09-13 a 2026-10-03 |
-| Commits no repositório / com coautoria do Claude (`Co-Authored-By`), à data da redação | 72 / 60 |
-| PRs mergeados (documentação, especificação, implementação, release) | 12 |
-| ADRs / refinamentos de especificação registrados | 16 / 26 |
-| Testes automatizados na suíte padrão (unidades 001 a 003) | 326, todos aprovados, cobertura de 99% |
-| Achados de revisão assistida por IA nos PRs de implementação | 28 (PR #63: 10, PR #69: 9, PR #70: 9) |
-| Dos 28: corrigidos ou mitigados / mantidos com justificativa | 24 / 4 |
+| Commits no repositório / com coautoria do Claude (`Co-Authored-By`), à data da redação | 81 / 65 |
+| PRs mergeados (documentação, especificação, implementação, release) | 16 |
+| ADRs / refinamentos de especificação registrados | 16 / 27 |
+| Testes automatizados na suíte padrão (unidades 001 a 004) | 420, todos aprovados, cobertura de 99% |
+| Achados de revisão assistida por IA nos PRs de implementação | 38 (PR #63: 10, #69: 9, #70: 9, #74: 10) |
+| Dos 38: corrigidos, mitigados ou esclarecidos na spec / mantidos com justificativa | 29 / 9 |
 | Falhas que só o CI revelou (depois de a suíte local passar) | 2 |
 
-Fontes: [relatório do incremento 1](2026-09-30-incremento-1.md), [do 2](2026-10-01-incremento-2.md), [do 3](2026-10-01-incremento-3.md) e o [registro de refinamentos](../registro-de-refinamentos.md).
+Fontes: [relatório do incremento 1](2026-09-30-incremento-1.md), [do 2](2026-10-01-incremento-2.md), [do 3](2026-10-01-incremento-3.md), [do 4](2026-10-03-incremento-4.md) e o [registro de refinamentos](../registro-de-refinamentos.md).
 
 ## 2. Pilar 1: alucinação e código inseguro ou destrutivo
 
@@ -31,11 +31,12 @@ Fontes: [relatório do incremento 1](2026-09-30-incremento-1.md), [do 2](2026-10
 | **Bloqueio de força bruta contornável** | O contador de falhas de login era "ler, somar, gravar" em Python: 24 logins paralelos passavam do limite de 5 tentativas. | `/code-review` ([PR #69](https://github.com/GuidaGaita/bootcamp/pull/69)) | **Alta** (RN-14, RN-16) |
 | **A mesma falha, de novo** | Na unidade seguinte, o limite do cofre (1.000 credenciais) e o `PATCH` tinham a mesma corrida de leitura-e-escrita, e dois `PATCH` paralelos perdiam uma alteração. A IA já conhecia o padrão da unidade anterior e repetiu o erro. | `/code-review` ([PR #70](https://github.com/GuidaGaita/bootcamp/pull/70)) | Alta |
 | **Canal de tempo** | O hash fictício usado para igualar o tempo de login de e-mails inexistentes era calculado só no primeiro uso. | `/code-review` | Média (docs/04, ameaça A3) |
+| **Regra errada que os testes confirmavam** | O avaliador de senhas dava a nota máxima a `"a" × 100`: cada repetição somava 1 bit sem teto. Os testes escritos junto com o código verificavam a fórmula da spec, não a intenção da regra (RN-11). | `/code-review` ([PR #74](https://github.com/GuidaGaita/bootcamp/pull/74)) | Média |
 | **Entrada sem limite** | Senhas e e-mails sem tamanho máximo antes de rodar Argon2; tabela de tentativas que cresce sem limite com e-mails inexistentes; URL validada num formato e guardada em outro. | `/code-review` | Média |
 
 ### 2.2 Testes verdes não bastam
 
-Nos três incrementos a suíte estava **verde** quando a revisão encontrou problemas graves. Os testes eram escritos pelo mesmo agente que escreveu o código, então compartilhavam as mesmas suposições. Houve também testes que não podiam falhar: uma asserção `A or B` em que só `B` podia ser verdadeira, e um teste de `PATCH` com UUID inválido que enviava o `PATCH` sem corpo e passava pelo motivo errado. A defesa que funcionou foi dupla: revisar o código com uma segunda passada independente e escrever testes de regressão que **falham sem a correção** (confirmado para a corrida do cofre).
+Nos quatro incrementos a suíte estava **verde** quando a revisão encontrou problemas graves. Os testes eram escritos pelo mesmo agente que escreveu o código, então compartilhavam as mesmas suposições. Houve também testes que não podiam falhar: uma asserção `A or B` em que só `B` podia ser verdadeira, e um teste de `PATCH` com UUID inválido que enviava o `PATCH` sem corpo e passava pelo motivo errado. A defesa que funcionou foi dupla: revisar o código com uma segunda passada independente e escrever testes de regressão que **falham sem a correção** (confirmado para a corrida do cofre).
 
 ### 2.3 Risco destrutivo
 
@@ -72,14 +73,14 @@ O fluxo SDD usado separa **o que construir** (decisão humana) de **como constru
 | Escolha do problema e dos requisitos | Mantenedor | RF-01 a RF-16, sessão `grill-me` |
 | Decisões em aberto | Mantenedor | 409 no cadastro, endpoints públicos, 30 min de sessão e 5 falhas (confirmadas em 2026-09-30) |
 | Aprovação da especificação | Mantenedor (merge do PR de spec) | PRs #7, #66 e #71 |
-| Merge da implementação | Mantenedor (a proteção de branch exige PR e CI verde) | PRs #63, #69 e #70 |
+| Merge da implementação | Mantenedor (a proteção de branch exige PR e CI verde) | PRs #63, #69, #70 e #74 |
 | Decisões de processo | Mantenedor | cortar `/speckit-*`, uma issue por unidade e adiar o `/security-review` para economizar tokens |
 
 Três observações críticas:
 
-1. **O ciclo de re-especificação funcionou.** 26 refinamentos foram registrados; vários nasceram de falhas reveladas por testes ou revisão (R-023 a R-026), e a regra "spec primeiro" impediu que a correção ficasse só no código.
+1. **O ciclo de re-especificação funcionou.** 27 refinamentos foram registrados; vários nasceram de falhas reveladas por testes ou revisão (R-023 a R-027), e a regra "spec primeiro" impediu que a correção ficasse só no código.
 2. **A revisão da IA tem ponto cego.** O mesmo agente escreveu código, testes e (em instâncias separadas) a revisão. A segunda passada encontrou muito, mas também repetiu a mesma classe de erro entre unidades, e uma revisão da mesma família de modelo tende a ter os mesmos pontos cegos que o gerador. Falta, neste projeto, um revisor humano que leia o diff com atenção a concorrência e criptografia.
-3. **A economia de revisão tem custo.** Por decisão do mantenedor, o `/security-review`, exigido pelo `CLAUDE.md` para criptografia e autenticação, **não foi executado** nas unidades 002 e 003, e as especificações foram escritas sem `/speckit-clarify` e `/speckit-analyze`. Isso está registrado nos PRs, mas é uma redução deliberada de garantia. O registro mostra aprovação por merge; o quanto do diff foi lido por uma pessoa não é medido aqui, e o mantenedor deve declarar isso na entrega.
+3. **A economia de revisão tem custo.** Por decisão do mantenedor, o `/security-review`, exigido pelo `CLAUDE.md` para criptografia e autenticação, **não foi executado** nas unidades 002 e 003, e as especificações das unidades 002 a 004 foram escritas sem `/speckit-clarify` e `/speckit-analyze` (a revisão da 004 achou uma ambiguidade de spec que esse passo talvez tivesse antecipado). Isso está registrado nos PRs, mas é uma redução deliberada de garantia. O registro mostra aprovação por merge; o quanto do diff foi lido por uma pessoa não é medido aqui, e o mantenedor deve declarar isso na entrega.
 
 ## 6. Conclusões e recomendações
 

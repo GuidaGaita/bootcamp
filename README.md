@@ -63,6 +63,35 @@ flowchart LR
 - **Criptografia em envelope:** uma chave de dados por usuário (DEK), protegida por uma chave derivada da senha mestra com Argon2id ([docs/04-seguranca.md](docs/04-seguranca.md)).
 - **Sessões com token opaco** revogável; o banco guarda apenas o hash do token.
 
+### Fluxo da aplicação
+
+Do cadastro à leitura de uma credencial. O servidor nunca guarda a senha mestra, o token nem a chave de dados em claro.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor C as Cliente
+  participant API as api
+  participant S as services + crypto
+  participant DB as SQLite
+  C->>API: POST /api/v1/accounts (e-mail, senha mestra)
+  API->>S: register
+  S->>DB: users: hash Argon2id, kdf_salt, DEK embrulhada pela KEK
+  C->>API: POST /api/v1/sessions
+  S->>DB: conta a tentativa (bloqueio de 5 falhas por e-mail)
+  S->>S: verifica o hash, deriva a KEK e abre a DEK; gera o token (32 bytes)
+  S->>DB: sessions: SHA-256(token) e a DEK embrulhada pela chave de sessão
+  API-->>C: 201 token e expires_at (30 min)
+  C->>API: POST /api/v1/credentials (Authorization: Bearer token)
+  S->>S: token, chave de sessão, DEK
+  S->>DB: credentials: todos os campos cifrados com AES-256-GCM e AAD
+  API-->>C: 201 credencial sem a senha
+  C->>API: GET /api/v1/credentials/{id}
+  S->>DB: busca por (id, user_id): de outro usuário é 404
+  S->>S: decifra com a DEK
+  API-->>C: 200 credencial com a senha
+```
+
 ## Stack
 
 | Área | Tecnologia |
@@ -166,9 +195,11 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md); anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
+Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
+
+Resumo com os trade-offs e o que a prática mostrou: [docs/adr/consolidado.md](docs/adr/consolidado.md).
 
 | ADR | Decisão | Status |
 |-----|---------|--------|
