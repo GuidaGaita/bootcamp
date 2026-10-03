@@ -4,7 +4,7 @@
 
 **Created**: 2026-10-03
 
-**Status**: Aprovada
+**Status**: Implementada
 
 **Versão**: 1.0.0
 
@@ -79,3 +79,4 @@ Acrescentados por esta spec: duas gerações seguidas diferem; a distribuição 
 | Versão | Data | Mudança | Motivo | Origem |
 |--------|------|---------|--------|--------|
 | 1.0.0 | 2026-10-03 | Versão aprovada | — | PR de spec da unidade 004 |
+| 1.0.0 | 2026-10-03 | Status alterado para Implementada; conteúdo sem mudança | Fase B concluída | PR de implementação da unidade 004 |

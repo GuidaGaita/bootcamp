@@ -25,4 +25,4 @@ description: "Lista de tarefas da unidade 004 — Gerador e avaliador de senhas"
 
 ## Phase 3: Fechamento
 
-- [ ] T007 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-4.md`.
+- [X] T007 Rodar `uv run pytest`, `ruff check` e `ruff format --check`; atualizar docs/02 §4, README, roadmap, spec (status `Implementada`) e publicar `docs/relatorios/AAAA-MM-DD-incremento-4.md`.
