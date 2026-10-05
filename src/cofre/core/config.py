@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     argon2_parallelism: PositiveInt = 1
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
 
+    @property
+    def argon2_cost(self) -> tuple[int, int, int]:
+        """Memory (KiB), iterations and parallelism, in the order the crypto layer takes them."""
+        return self.argon2_memory_kib, self.argon2_time_cost, self.argon2_parallelism
+
     @field_validator("log_level", mode="before")
     @classmethod
     def _normalize_log_level(cls, value: object) -> object:

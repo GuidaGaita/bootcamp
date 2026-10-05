@@ -44,8 +44,11 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | Incremento | Situação |
 |------------|----------|
 | 0 — Documentação e governança | Concluído com o merge do [PR #1](https://github.com/GuidaGaita/bootcamp/pull/1) (release `v0.1.0`); auditoria da documentação na versão `v0.1.1` |
-| 1 — Fundação | Unidade 001 implementada ([PR #63](https://github.com/GuidaGaita/bootcamp/pull/63)) e *status checks* do CI exigidos na proteção; falta publicar a release `v0.2.0` |
-| 2 a 5 | Planejado |
+| 1 — Fundação | Concluído: release `v0.2.0` |
+| 2 — Contas e sessões | Implementado ([PR #69](https://github.com/GuidaGaita/bootcamp/pull/69)) |
+| 3 — Cofre de credenciais | Implementado ([PR #70](https://github.com/GuidaGaita/bootcamp/pull/70)) |
+| 4 — Gerador e avaliador | Implementado ([PR #74](https://github.com/GuidaGaita/bootcamp/pull/74)) |
+| 5 — Saúde do cofre | Não implementado: RF-16 é *Could*. A release `v1.0.0` marca todos os requisitos *Must* (docs/06 §7) e reúne os incrementos 2 a 4, sem publicar `v0.3.0` a `v0.5.0` separadamente |
 
 ## 4. Histórico de revisões
 

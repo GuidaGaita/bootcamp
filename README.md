@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incremento 1 (Fundação) implementado · [unidade 001](specs/001-fundacao-da-api/spec.md) com `/health`, contrato de erros, configuração segura, logs JSON, harness de testes, Docker e CI · [roadmap](docs/09-roadmap.md)
+**Status:** Incrementos 1 a 4 implementados (fundação, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas) · falta só o relatório de saúde do cofre (*Could*) · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -17,6 +17,7 @@
 - [Testes e evidências](#testes-e-evidências)
 - [Decisões arquiteturais (ADRs)](#decisões-arquiteturais-adrs)
 - [Documentação](#documentação)
+- [Licença](#licença)
 - [Créditos](#créditos)
 
 ## Visão geral
@@ -34,13 +35,13 @@ Detalhes em [docs/01-visao-geral.md](docs/01-visao-geral.md).
 | Funcionalidade | Requisitos | Prioridade | Status |
 |----------------|------------|------------|--------|
 | Verificação de saúde da API | RF-01 | Must | Implementado |
-| Cadastro, login e logout com sessão de 30 min | RF-02, RF-03, RF-04 | Must | Planejado |
-| Consulta de conta e alteração de senha mestra | RF-05, RF-06 | Should | Planejado |
-| Exclusão de conta | RF-07 | Could | Planejado |
-| CRUD de credenciais cifradas, com listagem paginada | RF-08, RF-09, RF-11 a RF-13 | Must | Planejado |
-| Busca de credenciais | RF-10 | Should | Planejado |
-| Gerador de senhas | RF-14 | Must | Planejado |
-| Avaliador de força de senha | RF-15 | Should | Planejado |
+| Cadastro, login e logout com sessão de 30 min | RF-02, RF-03, RF-04 | Must | Implementado |
+| Consulta de conta e alteração de senha mestra | RF-05, RF-06 | Should | Implementado |
+| Exclusão de conta | RF-07 | Could | Implementado |
+| CRUD de credenciais cifradas, com listagem paginada | RF-08, RF-09, RF-11 a RF-13 | Must | Implementado |
+| Busca de credenciais | RF-10 | Should | Implementado |
+| Gerador de senhas | RF-14 | Must | Implementado |
+| Avaliador de força de senha | RF-15 | Should | Implementado |
 | Relatório de saúde do cofre (senhas fracas e reutilizadas) | RF-16 | Could | Planejado |
 
 Catálogo completo de requisitos funcionais, não funcionais e regras de negócio: [docs/02-requisitos.md](docs/02-requisitos.md).
@@ -61,6 +62,35 @@ flowchart LR
 - **Monólito modular em camadas**; cada camada é testável isoladamente ([docs/03-arquitetura.md](docs/03-arquitetura.md)).
 - **Criptografia em envelope:** uma chave de dados por usuário (DEK), protegida por uma chave derivada da senha mestra com Argon2id ([docs/04-seguranca.md](docs/04-seguranca.md)).
 - **Sessões com token opaco** revogável; o banco guarda apenas o hash do token.
+
+### Fluxo da aplicação
+
+Do cadastro à leitura de uma credencial. O servidor nunca guarda a senha mestra, o token nem a chave de dados em claro.
+
+```mermaid
+sequenceDiagram
+  autonumber
+  actor C as Cliente
+  participant API as api
+  participant S as services + crypto
+  participant DB as SQLite
+  C->>API: POST /api/v1/accounts (e-mail, senha mestra)
+  API->>S: register
+  S->>DB: users: hash Argon2id, kdf_salt, DEK embrulhada pela KEK
+  C->>API: POST /api/v1/sessions
+  S->>DB: conta a tentativa (bloqueio de 5 falhas por e-mail)
+  S->>S: verifica o hash, deriva a KEK e abre a DEK; gera o token (32 bytes)
+  S->>DB: sessions: SHA-256(token) e a DEK embrulhada pela chave de sessão
+  API-->>C: 201 token e expires_at (30 min)
+  C->>API: POST /api/v1/credentials (Authorization: Bearer token)
+  S->>S: token, chave de sessão, DEK
+  S->>DB: credentials: todos os campos cifrados com AES-256-GCM e AAD
+  API-->>C: 201 credencial sem a senha
+  C->>API: GET /api/v1/credentials/{id}
+  S->>DB: busca por (id, user_id): de outro usuário é 404
+  S->>S: decifra com a DEK
+  API-->>C: 200 credencial com a senha
+```
 
 ## Stack
 
@@ -165,9 +195,11 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Relatório mais recente: [incremento 1 (2026-09-30)](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
+Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
+
+Resumo com os trade-offs e o que a prática mostrou: [docs/adr/consolidado.md](docs/adr/consolidado.md).
 
 | ADR | Decisão | Status |
 |-----|---------|--------|
@@ -202,6 +234,10 @@ Relatório mais recente: [incremento 1 (2026-09-30)](docs/relatorios/2026-09-30-
 | [07 — Testes](docs/07-estrategia-de-testes.md) | Harness, níveis, casos de borda e evidências |
 | [08 — Ambiente e agentes](docs/08-ambiente-e-agentes.md) | Ambiente reprodutível e configuração do Claude Code |
 | [09 — Roadmap](docs/09-roadmap.md) | Incrementos e decomposição em unidades |
+
+## Licença
+
+Distribuído sob a licença [MIT](LICENSE).
 
 ## Créditos
 

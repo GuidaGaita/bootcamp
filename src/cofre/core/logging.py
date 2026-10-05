@@ -14,6 +14,7 @@ LOGGER_NAME = "cofre"
 # Only these record attributes are ever written; anything else is dropped (FR-014).
 ALLOWED_FIELDS = (
     "request_id",
+    "credential_id",
     "method",
     "route",
     "status",

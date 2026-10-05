@@ -19,6 +19,12 @@ CATALOG: dict[str, tuple[int, str]] = {
     "VALIDATION_ERROR": (422, "Os dados enviados são inválidos."),
     "INTERNAL_ERROR": (500, "Erro interno inesperado."),
     "SERVICE_UNAVAILABLE": (503, "Serviço temporariamente indisponível."),
+    "UNAUTHENTICATED": (401, "Autenticação necessária ou sessão inválida."),
+    "INVALID_CREDENTIALS": (401, "E-mail ou senha incorretos."),
+    "INVALID_MASTER_PASSWORD": (403, "Senha mestra incorreta."),
+    "EMAIL_ALREADY_REGISTERED": (409, "Já existe uma conta com este e-mail."),
+    "TOO_MANY_ATTEMPTS": (429, "Muitas tentativas. Tente novamente mais tarde."),
+    "VAULT_LIMIT_REACHED": (409, "Limite de credenciais atingido."),
 }
 
 _HTTP_STATUS_CODES = {404: "NOT_FOUND", 405: "METHOD_NOT_ALLOWED"}
@@ -79,7 +85,8 @@ async def _handle_cofre_error(request: Request, exc: CofreError) -> JSONResponse
         # Adding a code requires updating docs/03 §6.3 first (research R5).
         _log_error(request, "unmapped_error_code", error_type=type(exc).__name__)
         return error_response("INTERNAL_ERROR")
-    return error_response(exc.code)
+    details = [ValidationDetail(field=field, issue=issue) for field, issue in exc.details]
+    return error_response(exc.code, details=details or None, headers=exc.headers or None)
 
 
 async def _handle_http_exception(request: Request, exc: StarletteHTTPException) -> JSONResponse:
