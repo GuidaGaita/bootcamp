@@ -79,7 +79,7 @@ sequenceDiagram
   S->>DB: users: hash Argon2id, kdf_salt, DEK embrulhada pela KEK
   C->>API: POST /api/v1/sessions
   S->>DB: conta a tentativa (bloqueio de 5 falhas por e-mail)
-  S->>S: verifica o hash, deriva a KEK e abre a DEK; gera o token (32 bytes)
+  S->>S: verifica o hash, deriva a KEK e abre a DEK e gera o token (32 bytes)
   S->>DB: sessions: SHA-256(token) e a DEK embrulhada pela chave de sessão
   API-->>C: 201 token e expires_at (30 min)
   C->>API: POST /api/v1/credentials (Authorization: Bearer token)
