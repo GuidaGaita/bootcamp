@@ -117,6 +117,7 @@ sequenceDiagram
 ├── docs/
 │   ├── 01-visao-geral.md … 09-roadmap.md
 │   ├── adr/                      # decisões arquiteturais
+│   ├── ERROS.md                  # erros lógicos: detecção, causa, correção, prevenção
 │   ├── relatorios/               # evidências de execução dos testes
 │   ├── sessoes/                  # resumos de sessões com o agente
 │   ├── glossario.md
@@ -195,7 +196,7 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
+Log completo da suíte final (420 testes, 98,83% de cobertura, `docker compose run --rm tests`): [logs_testes_final.txt](logs_testes_final.txt). Erros lógicos com causa, correção e prevenção: [docs/ERROS.md](docs/ERROS.md). Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
 
