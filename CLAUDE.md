@@ -6,7 +6,7 @@ Instruções do Claude Code para este repositório. Valem para toda sessão.
 
 **Cofre**: API REST multiusuário de gerenciamento de senhas (Python 3.13, FastAPI, SQLite), desenvolvida com **Specification-Driven Development** usando o **GitHub Spec Kit**. Projeto individual de bootcamp, mantido por @GuidaGaita.
 
-**Estado atual:** incrementos 1 a 4 implementados (`/health`, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas), com todos os requisitos *Must* testados. Falta só a unidade 005 (RF-16, *Could*, relatório de saúde do cofre), que não tem spec. Releases: `v0.1.0`, `v0.1.1`, `v0.2.0`; a `v1.0.0` reúne os incrementos 2 a 4. As specs 002 a 004 seguiram um fluxo enxuto (sem `/speckit-*` e uma issue por unidade), registrado em [docs/sessoes/](docs/sessoes/2026-09-30-fase-a-unidades-002-003.md); uma nova unidade deve voltar ao fluxo completo da tabela abaixo.
+**Estado atual:** incrementos 1 a 4 implementados (`/health`, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas), com todos os requisitos *Must* testados. A unidade 005 (RF-16, *Could*, relatório de saúde do cofre) ficou **fora do escopo** por decisão do mantenedor (R-028): não tem spec e não será implementada. Releases: `v0.1.0`, `v0.1.1`, `v0.2.0`; a `v1.0.0` reúne os incrementos 2 a 4. As specs 002 a 004 seguiram um fluxo enxuto (sem `/speckit-*` e uma issue por unidade), registrado em [docs/sessoes/](docs/sessoes/2026-09-30-fase-a-unidades-002-003.md); uma nova unidade deve voltar ao fluxo completo da tabela abaixo.
 
 ## Fontes da verdade (ordem de precedência)
 

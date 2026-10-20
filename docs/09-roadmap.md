@@ -1,6 +1,6 @@
 # 09 — Roadmap e Decomposição em Unidades
 
-> **Status:** Aprovado · **Versão:** 1.0.2 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.0.3 · **Última revisão:** 2026-10-20
 > Desenvolvimento incremental **sem datas fixas**. Cada incremento é um milestone no GitHub e funciona como uma iteração (sprint).
 
 ## 1. Incrementos
@@ -12,7 +12,7 @@
 | 2 | **Contas e sessões** | `v0.3.0` | Spec 002 + implementação | RF-02 a RF-07 atendidos conforme prioridade. |
 | 3 | **Cofre de credenciais** | `v0.4.0` | Spec 003 + implementação | RF-08 a RF-13 atendidos. |
 | 4 | **Gerador e avaliador de senhas** | `v0.5.0` | Spec 004 + implementação | RF-14 e RF-15 atendidos. |
-| 5 | **Saúde do cofre e fechamento** | `v1.0.0` | Spec 005 + implementação; relatório final de testes | RF-16 atendido; todos os *Must* implementados; relatório final publicado. |
+| 5 | **Saúde do cofre e fechamento** | `v1.0.0` e `v1.1.0` | ~~Spec 005 + implementação~~ (fora do escopo, R-028); relatório final de testes; documento As-Built | Todos os *Must* e *Should* implementados; relatório final e As-Built publicados. |
 
 Correções de documentação entre incrementos geram versões *patch* (ex.: `v0.1.1`), sem alterar o escopo dos incrementos.
 
@@ -26,7 +26,7 @@ Cada unidade é **uma spec do Spec Kit**, desenvolvida, testada e entregue de fo
 | **002** Contas e sessões | `specs/002-contas-e-sessoes` | RF-02 a RF-07; RN-01 a RN-05, RN-12, RN-14, RN-16; RNF-02, RNF-04 a RNF-07 | `crypto` (hashing, kdf, cipher, keys, tokens), `AccountService`, `SessionService`, `UserRepository`, `SessionRepository`, `LoginThrottleRepository`, routers `accounts` e `sessions` | 001 | Cadastro → login → `/me` → logout, com relógio controlado |
 | **003** Cofre de credenciais | `specs/003-cofre-de-credenciais` | RF-08 a RF-13; RN-06 a RN-09, RN-13, RN-15; RNF-01, RNF-03, RNF-12 | `VaultService`, `CredentialRepository`, router `credentials` | 001, 002 | CRUD com usuário autenticado via fixture `auth_client` |
 | **004** Gerador e avaliador | `specs/004-gerador-de-senhas` | RF-14, RF-15; RN-10, RN-11 | `PasswordGenerator`, `StrengthEstimator`, router `passwords` | 001 | Funções puras e endpoints públicos |
-| **005** Saúde do cofre | `specs/005-saude-do-cofre` | RF-16; RN-08, RN-11 | `VaultHealthService`, router `vault` | 003, 004 | Relatório sobre um cofre de teste com senhas fracas e repetidas |
+| **005** Saúde do cofre (fora do escopo) | — | RF-16; RN-08, RN-11 | `VaultHealthService`, router `vault` (não criados) | 003, 004 | — |
 
 ```mermaid
 flowchart LR
@@ -48,7 +48,7 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | 2 — Contas e sessões | Implementado ([PR #69](https://github.com/GuidaGaita/bootcamp/pull/69)) |
 | 3 — Cofre de credenciais | Implementado ([PR #70](https://github.com/GuidaGaita/bootcamp/pull/70)) |
 | 4 — Gerador e avaliador | Implementado ([PR #74](https://github.com/GuidaGaita/bootcamp/pull/74)) |
-| 5 — Saúde do cofre | Não implementado: RF-16 é *Could*. A release `v1.0.0` marca todos os requisitos *Must* (docs/06 §7) e reúne os incrementos 2 a 4, sem publicar `v0.3.0` a `v0.5.0` separadamente |
+| 5 — Saúde do cofre | Fora do escopo por decisão do mantenedor (R-028): RF-16 é *Could*. A release `v1.0.0` marca todos os requisitos *Must* (docs/06 §7) e reúne os incrementos 2 a 4, sem publicar `v0.3.0` a `v0.5.0` separadamente |
 
 ## 4. Histórico de revisões
 
@@ -57,3 +57,4 @@ A unidade 004 não depende de 002 nem de 003 e pode ser implementada em paralelo
 | 1.0.0 | 2026-09-13 | Versão inicial. | PR #1 |
 | 1.0.1 | 2026-09-13 | RNF-14 e RNF-15 na unidade 001; RN-16 e `LoginThrottleRepository` na 002; RN-08 na 005; versões *patch* para correções de documentação. | Auditoria da documentação (R-016) |
 | 1.0.2 | 2026-09-13 | Situação do incremento 1: Fase A da unidade 001 concluída. | PR de spec da unidade 001 |
+| 1.0.3 | 2026-10-20 | Unidade 005 e RF-16 retirados do escopo. | Entrega final (R-028) |
