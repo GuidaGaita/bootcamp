@@ -1,6 +1,6 @@
 # 07 — Estratégia de Testes e Harness de Validação
 
-> **Status:** Aprovado · **Versão:** 1.1.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.1.1 · **Última revisão:** 2026-10-20
 > O harness é construído na unidade 001 ([09-roadmap.md](09-roadmap.md)). Este documento define **o que** ele precisa garantir; o `plan.md` da unidade 001 define os detalhes de implementação.
 
 ## 1. Objetivos
@@ -123,7 +123,9 @@ Toda spec deve incluir, na seção *Edge Cases*, ao menos os casos aplicáveis d
 | 1.000 gerações | Todo conjunto selecionado presente em cada senha | RN-10 |
 | Senha a avaliar com 0 / 1 / 1024 / 1025 caracteres | 422 / 200 / 200 / 422 | RN-11 |
 
-### Unidade 005 — Saúde do cofre
+### Unidade 005 — Saúde do cofre (fora do escopo, R-028)
+
+A unidade não foi implementada; os casos abaixo ficam como referência e **não têm teste**.
 
 | Caso | Esperado | Ref. |
 |------|----------|------|
@@ -183,3 +185,4 @@ PRs só podem ser mergeados com o CI verde. O nível `perf` roda manualmente (`w
 |--------|------|---------|--------|
 | 1.0.0 | 2026-09-13 | Versão inicial; fixture `auth_client_factory` e caso de borda do bloqueio para e-mail não cadastrado. | PR #1 |
 | 1.1.0 | 2026-09-13 | Nível `perf`; casos de borda das unidades 001 e 005; casos de NFKC, RN-16, formato de e-mail e token malformado; remoção do caso inalcançável "comprimento 3 com 4 conjuntos"; limite de entrada do avaliador. | Auditoria da documentação (R-008 a R-014, R-016, R-019, R-020) |
+| 1.1.1 | 2026-10-20 | Unidade 005 marcada como fora do escopo. | Entrega final (R-028) |

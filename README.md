@@ -2,7 +2,7 @@
 
 > Gerenciador de senhas multiusuário exposto como API REST, desenvolvido com **Specification-Driven Development (SDD)** usando GitHub Spec Kit e Claude Code.
 
-**Status:** Incrementos 1 a 4 implementados (fundação, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas) · falta só o relatório de saúde do cofre (*Could*) · [roadmap](docs/09-roadmap.md)
+**Status:** Incrementos 1 a 4 implementados (fundação, contas e sessões, cofre de credenciais cifradas, gerador e avaliador de senhas) · o relatório de saúde do cofre (*Could*) ficou fora do escopo · [roadmap](docs/09-roadmap.md)
 
 ## Sumário
 
@@ -42,7 +42,7 @@ Detalhes em [docs/01-visao-geral.md](docs/01-visao-geral.md).
 | Busca de credenciais | RF-10 | Should | Implementado |
 | Gerador de senhas | RF-14 | Must | Implementado |
 | Avaliador de força de senha | RF-15 | Should | Implementado |
-| Relatório de saúde do cofre (senhas fracas e reutilizadas) | RF-16 | Could | Planejado |
+| Relatório de saúde do cofre (senhas fracas e reutilizadas) | RF-16 | Could | Fora do escopo ([R-028](docs/registro-de-refinamentos.md)) |
 
 Catálogo completo de requisitos funcionais, não funcionais e regras de negócio: [docs/02-requisitos.md](docs/02-requisitos.md).
 
@@ -138,12 +138,10 @@ Git · Docker com Compose v2 · Python 3.13 e [uv](https://docs.astral.sh/uv/) (
 ```bash
 git clone https://github.com/GuidaGaita/bootcamp.git
 cd bootcamp
-git switch develop
+git checkout v1.1.0                # versão final da entrega; a branch main acompanha a última release
 ```
 
 ### Executar a API e os testes
-
-> Disponível a partir do incremento 1 (unidade 001 — Fundação da API).
 
 ```bash
 # Com Docker (recomendado)
@@ -154,7 +152,45 @@ docker compose run --rm tests      # suíte completa; relatórios em ./reports
 uv sync
 uv run uvicorn cofre.main:create_app --factory --reload
 uv run pytest
+uv run ruff check . && uv run ruff format --check .
 ```
+
+Com `docker compose up --build`, o banco fica no volume `cofre-data` e persiste entre execuções; `docker compose down -v` apaga o volume.
+
+### Variáveis de ambiente
+
+Todas são opcionais e começam com `COFRE_`; os padrões servem para executar a API e os testes. O arquivo [.env.example](.env.example) documenta cada uma, mas a aplicação lê o ambiente, não o arquivo. Valores inválidos impedem a inicialização, e a mensagem cita a variável sem mostrar o valor.
+
+| Variável | Padrão | Significado |
+|----------|--------|-------------|
+| `COFRE_ENV` | `production` | `production`, `development` ou `test`; só `test` aceita Argon2id abaixo do mínimo. |
+| `COFRE_DATABASE_URL` | `sqlite:///./data/cofre.db` | Banco SQLite (no Docker, `sqlite:////data/cofre.db`). |
+| `COFRE_SESSION_TTL_MINUTES` | `30` | Validade da sessão, em minutos. |
+| `COFRE_LOGIN_MAX_ATTEMPTS` | `5` | Falhas de login antes do bloqueio. |
+| `COFRE_LOGIN_LOCK_MINUTES` | `15` | Duração do bloqueio, em minutos. |
+| `COFRE_MAX_CREDENTIALS_PER_USER` | `1000` | Limite de credenciais por usuário. |
+| `COFRE_ARGON2_MEMORY_KIB` / `COFRE_ARGON2_TIME_COST` / `COFRE_ARGON2_PARALLELISM` | `19456` / `2` / `1` | Custo do Argon2id (mínimos de 19456 KiB e 2 iterações fora de `test`). |
+| `COFRE_LOG_LEVEL` | `INFO` | `DEBUG`, `INFO`, `WARNING`, `ERROR` ou `CRITICAL`. |
+
+Para mudar um valor no Docker, acrescente-o em `environment:` do serviço `api` no [docker-compose.yml](docker-compose.yml). Sem Docker, exporte a variável antes de iniciar a API (Bash: `COFRE_SESSION_TTL_MINUTES=10 uv run uvicorn cofre.main:create_app --factory`; PowerShell: `$env:COFRE_SESSION_TTL_MINUTES=10`).
+
+### Primeiro uso
+
+Com a API no ar, abra [http://localhost:8000/docs](http://localhost:8000/docs) ou use `curl` (Bash):
+
+```bash
+curl -s -X POST localhost:8000/api/v1/accounts -H "Content-Type: application/json" \
+  -d '{"email":"demo@exemplo.com","master_password":"senha-mestra-demo-123"}'
+TOKEN=$(curl -s -X POST localhost:8000/api/v1/sessions -H "Content-Type: application/json" \
+  -d '{"email":"demo@exemplo.com","master_password":"senha-mestra-demo-123"}' \
+  | python -c "import sys,json;print(json.load(sys.stdin)['token'])")
+curl -s -X POST localhost:8000/api/v1/credentials -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" -d '{"title":"GitHub","username":"demo","password":"Abc!1234xyz"}'
+curl -s "localhost:8000/api/v1/credentials?q=git" -H "Authorization: Bearer $TOKEN"
+curl -s -X POST localhost:8000/api/v1/passwords/generate -H "Content-Type: application/json" -d '{"length":16}'
+```
+
+A senha mestra tem de 12 a 128 caracteres. O contrato completo de cada rota está em [docs/10-as-built.md](docs/10-as-built.md#4-contrato-da-api).
 
 ### Preparar o fluxo SDD com o agente
 
@@ -196,7 +232,7 @@ Detalhes em [docs/06-governanca.md](docs/06-governanca.md).
 
 ### Evidências de execução
 
-Log completo da suíte final (420 testes, 98,83% de cobertura, `docker compose run --rm tests`): [logs_testes_final.txt](logs_testes_final.txt). Erros lógicos com causa, correção e prevenção: [docs/ERROS.md](docs/ERROS.md). Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
+Log completo da suíte final (420 testes, 98,83% de cobertura, `docker compose run --rm tests`): [logs_testes_final.txt](logs_testes_final.txt). Retrospectiva do projeto: [retrospectiva](docs/relatorios/retrospectiva.md). Erros lógicos com causa, correção e prevenção: [docs/ERROS.md](docs/ERROS.md). Relatório mais recente: [incremento 4 (2026-10-03)](docs/relatorios/2026-10-03-incremento-4.md). Análise do uso de IA: [relatório técnico-ético](docs/relatorios/relatorio-etico-tecnico.md) e [relato de experiência](docs/relatorios/relato-de-experiencia.md). Anteriores: [incremento 3](docs/relatorios/2026-10-01-incremento-3.md), [incremento 2](docs/relatorios/2026-10-01-incremento-2.md), [incremento 1](docs/relatorios/2026-09-30-incremento-1.md). Todos os relatórios ficam em [docs/relatorios/](docs/relatorios/README.md).
 
 ## Decisões arquiteturais (ADRs)
 
@@ -235,6 +271,7 @@ Resumo com os trade-offs e o que a prática mostrou: [docs/adr/consolidado.md](d
 | [07 — Testes](docs/07-estrategia-de-testes.md) | Harness, níveis, casos de borda e evidências |
 | [08 — Ambiente e agentes](docs/08-ambiente-e-agentes.md) | Ambiente reprodutível e configuração do Claude Code |
 | [09 — Roadmap](docs/09-roadmap.md) | Incrementos e decomposição em unidades |
+| [10 — As-Built](docs/10-as-built.md) | Especificação técnica final: o que foi entregue, contratos, desvios e limitações |
 
 ## Licença
 

@@ -1,6 +1,6 @@
 # 02 — Requisitos e Regras de Negócio
 
-> **Status:** Aprovado · **Versão:** 1.1.1 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.2.0 · **Última revisão:** 2026-10-20
 > Catálogo de nível de projeto. Cada spec do Spec Kit (`specs/NNN-*/spec.md`) detalha os requisitos da sua unidade em `FR-xxx`, sempre referenciando os IDs deste documento.
 
 ## Convenções
@@ -53,7 +53,7 @@
 
 | ID | Requisito | Prioridade |
 |----|-----------|------------|
-| RF-16 | O usuário autenticado deve poder obter um **relatório de saúde** do cofre, listando credenciais com senha fraca e grupos de credenciais com senha reutilizada. | Could |
+| RF-16 | O usuário autenticado deve poder obter um **relatório de saúde** do cofre, listando credenciais com senha fraca e grupos de credenciais com senha reutilizada. | Fora do escopo (R-028) |
 
 ---
 
@@ -72,7 +72,7 @@
 | RNF-09 | Testabilidade | Cobertura de **linhas e ramificações** (*branch coverage*) ≥ **85%** no pacote `cofre`; todo requisito *Must* com ao menos um teste marcado com seu ID. | Must | Gate de cobertura + relatório de rastreabilidade. |
 | RNF-10 | Reprodutibilidade | O ambiente deve subir com `docker compose up` e os testes rodar com um único comando; dependências travadas em `uv.lock`. | Must | Execução em máquina limpa / CI. |
 | RNF-11 | Qualidade | Código sem erros de `ruff` (lint e formatação) e com *type hints* em funções públicas; o CI bloqueia PRs que falharem. | Must | GitHub Actions. |
-| RNF-12 | Desempenho | Operações de cofre (RF-08 a RF-13 e RF-16) com p95 < **200 ms** para cofres de até 1.000 credenciais de tamanho típico (até 1 KB de texto claro cada) em ambiente local; operações com Argon2id (RF-02, RF-03, RF-06, RF-07) < **1 s**. | Should | Testes de desempenho (marcador `perf`). |
+| RNF-12 | Desempenho | Operações de cofre (RF-08 a RF-13) com p95 < **200 ms** para cofres de até 1.000 credenciais de tamanho típico (até 1 KB de texto claro cada) em ambiente local; operações com Argon2id (RF-02, RF-03, RF-06, RF-07) < **1 s**. | Should | Testes de desempenho (marcador `perf`). |
 | RNF-13 | Observabilidade | Logs estruturados (JSON) por requisição com id, método, rota, status e duração, sem dados sensíveis. | Could | Teste que valida o formato do log. |
 | RNF-14 | Usabilidade da API | Erros com `code` estável em inglês (ex.: `INVALID_CREDENTIALS`) e `message` legível em pt-BR. | Should | Testes de contrato. |
 | RNF-15 | Portabilidade | Executar em Python 3.13 em Linux (container) e em Windows/macOS via `uv`. | Should | CI em Linux + uso local em Windows. |
@@ -112,13 +112,13 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 | RF-02 .. RF-07 | 002 | [spec 002](../specs/002-contas-e-sessoes/spec.md) | [test_accounts.py](../tests/api/test_accounts.py), [test_sessions.py](../tests/api/test_sessions.py), [test_account_management.py](../tests/api/test_account_management.py), [test_crypto.py](../tests/unit/test_crypto.py) | Implementado |
 | RF-08 .. RF-13 | 003 | [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [test_credentials.py](../tests/api/test_credentials.py), [test_vault_storage.py](../tests/security/test_vault_storage.py), [test_vault_perf.py](../tests/perf/test_vault_perf.py) | Implementado |
 | RF-14, RF-15 | 004 | [spec 004](../specs/004-gerador-de-senhas/spec.md) | [test_password_generator.py](../tests/api/test_password_generator.py), [test_password_strength.py](../tests/api/test_password_strength.py), [test_strength_estimator.py](../tests/unit/test_strength_estimator.py) | Implementado |
-| RF-16 | 005 | — | — | Planejado |
+| RF-16 | 005 | — | — | Fora do escopo (R-028) |
 | RNF-08 .. RNF-11, RNF-13 .. RNF-15 | 001 | [spec 001](../specs/001-fundacao-da-api/spec.md) | [tests/](../tests/) (mapa completo em `reports/rastreabilidade.md` e no [relatório do incremento 1](relatorios/2026-09-30-incremento-1.md)) | Implementado |
 | RNF-01 .. RNF-07, RNF-12 | 002 e 003 | [spec 002](../specs/002-contas-e-sessoes/spec.md), [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [tests/security/](../tests/security/), [tests/perf/](../tests/perf/) | Implementado |
 | RN-01 .. RN-09, RN-12 .. RN-16 | 002 e 003 | [spec 002](../specs/002-contas-e-sessoes/spec.md), [spec 003](../specs/003-cofre-de-credenciais/spec.md) | [tests/](../tests/) (mapa em `reports/rastreabilidade.md`) | Implementado |
 | RN-10, RN-11 | 004 | [spec 004](../specs/004-gerador-de-senhas/spec.md) | [test_password_generator.py](../tests/unit/test_password_generator.py), [test_strength_estimator.py](../tests/unit/test_strength_estimator.py) | Implementado |
 
-**Legenda de status:** Planejado → Especificado (spec aprovada) → Implementado (testes verdes) → Revisado (houve refinamento registrado).
+**Legenda de status:** Planejado → Especificado (spec aprovada) → Implementado (testes verdes) → Revisado (houve refinamento registrado). *Fora do escopo*: retirado por decisão registrada, sem spec nem código.
 
 ---
 
@@ -129,3 +129,4 @@ Atualizada a cada spec aprovada e a cada unidade implementada.
 | 1.0.0 | 2026-09-13 | Versão inicial; RN-14 passa a valer para qualquer e-mail (R-007). | PR #1 |
 | 1.1.0 | 2026-09-13 | Nova RN-16 (força bruta da senha mestra com token); RN-01 com formato e tamanho; RN-02 com normalização NFKC; RN-08 inclui o relatório de saúde; RN-10 sem cláusula inalcançável; RN-11 com limite de entrada; RF-01 com 200/503; RNF-07, RNF-09 e RNF-12 ajustados; RN-16 esclarecida na revisão do PR #3. | Auditoria da documentação (R-008, R-009, R-012 a R-014, R-016, R-019) |
 | 1.1.1 | 2026-09-13 | Matriz de rastreabilidade: RF-01, RNF-08 a RNF-11 e RNF-13 a RNF-15 como Especificado pela spec 001. | PR de spec da unidade 001 |
+| 1.2.0 | 2026-10-20 | RF-16 passa a *Fora do escopo*; RNF-12 deixa de citar o RF-16. | Entrega final (R-028) |

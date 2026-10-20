@@ -1,6 +1,6 @@
 # 03 — Arquitetura
 
-> **Status:** Aprovado · **Versão:** 1.2.0 · **Última revisão:** 2026-09-13
+> **Status:** Aprovado · **Versão:** 1.2.1 · **Última revisão:** 2026-10-20
 > Descreve a arquitetura-alvo. O detalhamento de cada unidade (modelo de dados, contratos, pesquisa técnica) é produzido por `/speckit-plan` em `specs/NNN-*/`.
 
 ## 1. Visão de contexto
@@ -35,7 +35,6 @@ flowchart TB
     VS["VaultService"]
     PG["PasswordGenerator"]
     SE["StrengthEstimator"]
-    HR["VaultHealthService"]
   end
   subgraph crypto["crypto — primitivas puras"]
     PH["PasswordHasher"]
@@ -227,7 +226,6 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | DELETE | `/api/v1/credentials/{id}` | Bearer | RF-13 | 204 |
 | POST | `/api/v1/passwords/generate` | — | RF-14 | 200 |
 | POST | `/api/v1/passwords/strength` | — | RF-15 | 200 |
-| GET | `/api/v1/vault/health-report` | Bearer | RF-16 | 200 |
 
 > - A exclusão de conta usa `POST .../deletion` porque exige a senha mestra no corpo, e corpo em `DELETE` é mal suportado por clientes e proxies.
 > - `/health` responde `{"status": "ok"}` e fica fora de `/api/v1` para uso por orquestradores; não expõe versões nem detalhes do banco.
@@ -276,3 +274,4 @@ Contratos completos (schemas, exemplos, casos de erro) ficam em `specs/NNN-*/con
 | 1.0.0 | 2026-09-13 | Versão inicial; entidade `LOGIN_THROTTLES` (R-007). | PR #1 |
 | 1.1.0 | 2026-09-13 | Formato único `nonce ‖ texto cifrado ‖ tag` (remove a coluna `nonce`); erro 403 `INVALID_MASTER_PASSWORD` e 503 `SERVICE_UNAVAILABLE`; fábrica `create_app` com `--factory`; ordem do login (bloqueio antes da busca do usuário); diretórios `smoke/` e `perf/`; padrões de `create_app` e validação de `X-Request-ID`. | Auditoria da documentação (R-008, R-010, R-014 a R-016, R-020, R-021) |
 | 1.2.0 | 2026-09-13 | Código de erro 405 `METHOD_NOT_ALLOWED`; 404 também para rota inexistente. | Clarificação da spec 001 (R-022) |
+| 1.2.1 | 2026-10-20 | Remove o `VaultHealthService` e a rota `/api/v1/vault/health-report`, que ficaram fora do escopo. | Entrega final (R-028) |
