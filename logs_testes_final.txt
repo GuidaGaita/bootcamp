@@ -1,0 +1,113 @@
+ Container bootcamp-tests-run-cfa3a1246c89 Creating 
+ Container bootcamp-tests-run-cfa3a1246c89 Created 
+============================= test session starts ==============================
+platform linux -- Python 3.13.16, pytest-9.1.1, pluggy-1.6.0
+Using --randomly-seed=343891990
+rootdir: /app
+configfile: pyproject.toml
+testpaths: tests
+plugins: anyio-4.15.1, randomly-5.0.0, cov-7.1.0
+collected 426 items / 6 deselected / 420 selected
+
+tests/unit/test_json_formatter.py ......                                 [  1%]
+tests/api/test_errors.py ......                                          [  2%]
+tests/unit/test_validation.py .................                          [  6%]
+tests/unit/test_fixtures.py .                                            [  7%]
+tests/unit/test_architecture.py .....                                    [  8%]
+tests/unit/test_config.py .....................                          [ 13%]
+tests/unit/test_harness_coverage_gate.py ......                          [ 14%]
+tests/unit/test_harness_traceability.py .......                          [ 16%]
+tests/api/test_sessions.py ......................                        [ 21%]
+tests/api/test_headers.py ......                                         [ 23%]
+tests/integration/test_throttle.py ........                              [ 25%]
+tests/security/test_startup_guards.py .........                          [ 27%]
+tests/security/test_log_hygiene.py ..                                    [ 27%]
+tests/api/test_password_strength.py .........                            [ 29%]
+tests/security/test_vault_storage.py ........                            [ 31%]
+tests/unit/test_request_id.py .............                              [ 34%]
+tests/integration/test_database.py .......                               [ 36%]
+tests/api/test_accounts.py .............                                 [ 39%]
+tests/api/test_app_factory.py ....                                       [ 40%]
+tests/api/test_account_management.py ..............                      [ 43%]
+tests/api/test_request_logging.py ...................                    [ 48%]
+tests/integration/test_health_service.py ..                              [ 48%]
+tests/unit/test_error_catalog.py .........                               [ 50%]
+tests/unit/test_harness_catalog.py ..                                    [ 51%]
+tests/unit/test_strength_estimator.py .................................. [ 59%]
+................                                                         [ 63%]
+tests/api/test_credentials.py .......................................... [ 73%]
+..........                                                               [ 75%]
+tests/security/test_password_hygiene.py ...                              [ 76%]
+tests/unit/test_crypto.py ..........................                     [ 82%]
+tests/unit/test_ci_workflow.py ...........                               [ 85%]
+tests/api/test_password_generator.py ...............                     [ 88%]
+tests/security/test_auth_hygiene.py ...                                  [ 89%]
+tests/unit/test_contract_support.py ..........                           [ 91%]
+tests/api/test_health.py .....                                           [ 93%]
+tests/unit/test_clock.py ........                                        [ 95%]
+tests/api/test_openapi.py ....                                           [ 95%]
+tests/unit/test_password_generator.py .................                  [100%]
+
+=============================== warnings summary ===============================
+.venv/lib/python3.13/site-packages/fastapi/testclient.py:1
+  /app/.venv/lib/python3.13/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+------------------ generated xml file: /app/reports/junit.xml ------------------
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.13.16-final-0 _______________
+
+Name                                        Stmts   Miss Branch BrPart  Cover   Missing
+---------------------------------------------------------------------------------------
+src/cofre/__init__.py                           1      0      0      0   100%
+src/cofre/api/__init__.py                       0      0      0      0   100%
+src/cofre/api/deps.py                          37      0      2      0   100%
+src/cofre/api/errors.py                        59      2     12      2    94%   63->65, 95-96
+src/cofre/api/middleware.py                    53      0     12      1    98%   73->76
+src/cofre/api/routers/__init__.py               0      0      0      0   100%
+src/cofre/api/routers/accounts.py              22      0      0      0   100%
+src/cofre/api/routers/credentials.py           24      0      0      0   100%
+src/cofre/api/routers/health.py                10      0      0      0   100%
+src/cofre/api/routers/passwords.py             14      0      0      0   100%
+src/cofre/api/routers/sessions.py              14      0      0      0   100%
+src/cofre/api/schemas/__init__.py               0      0      0      0   100%
+src/cofre/api/schemas/accounts.py              16      0      0      0   100%
+src/cofre/api/schemas/credentials.py           73      0     16      0   100%
+src/cofre/api/schemas/errors.py                10      0      0      0   100%
+src/cofre/api/schemas/health.py                 4      0      0      0   100%
+src/cofre/api/schemas/passwords.py             24      0      2      0   100%
+src/cofre/api/schemas/sessions.py               8      0      0      0   100%
+src/cofre/core/__init__.py                      0      0      0      0   100%
+src/cofre/core/clock.py                         6      0      0      0   100%
+src/cofre/core/config.py                       68      0     14      0   100%
+src/cofre/core/errors.py                       48      0      4      0   100%
+src/cofre/core/logging.py                      38      0     12      0   100%
+src/cofre/crypto/__init__.py                    0      0      0      0   100%
+src/cofre/crypto/cipher.py                     16      0      2      0   100%
+src/cofre/crypto/hashing.py                    17      0      0      0   100%
+src/cofre/crypto/kdf.py                         3      0      0      0   100%
+src/cofre/crypto/keys.py                       19      0      0      0   100%
+src/cofre/crypto/tokens.py                     16      0      4      0   100%
+src/cofre/main.py                              42      0      4      0   100%
+src/cofre/repositories/__init__.py              0      0      0      0   100%
+src/cofre/repositories/credentials.py          18      0      0      0   100%
+src/cofre/repositories/database.py             19      0      2      0   100%
+src/cofre/repositories/login_throttles.py      24      0      0      0   100%
+src/cofre/repositories/models.py               49      1      4      1    96%   23
+src/cofre/repositories/sessions.py             17      0      0      0   100%
+src/cofre/repositories/users.py                17      0      0      0   100%
+src/cofre/services/__init__.py                  0      0      0      0   100%
+src/cofre/services/accounts.py                 80      4     10      1    94%   55, 78-80
+src/cofre/services/health.py                   15      0      0      0   100%
+src/cofre/services/passwords.py               104      0     38      0   100%
+src/cofre/services/sessions.py                 72      4      8      0    95%   61-62, 99-100
+src/cofre/services/throttle.py                 45      0      6      0   100%
+src/cofre/services/validation.py               15      0      6      0   100%
+src/cofre/services/vault.py                    89      0      6      0   100%
+---------------------------------------------------------------------------------------
+TOTAL                                        1206     11    164      5    99%
+Coverage HTML written to dir reports/htmlcov
+Coverage XML written to file reports/coverage.xml
+Required test coverage of 85% reached. Total coverage: 98.83%
+================ 420 passed, 6 deselected, 1 warning in 45.34s =================

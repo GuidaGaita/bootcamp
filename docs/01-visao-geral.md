@@ -48,7 +48,6 @@ Falta um lugar **único, confiável e cifrado** onde cada pessoa guarde suas cre
 - Alteração da senha mestra sem perda de dados; exclusão de conta.
 - CRUD de credenciais cifradas, com listagem paginada e busca.
 - Gerador de senhas configurável e avaliador de força.
-- Relatório de saúde do cofre (senhas fracas e reutilizadas) — prioridade *Could*.
 - API documentada via OpenAPI, ambiente em Docker, suíte de testes automatizados.
 
 ### 5.2 Fora do escopo
@@ -62,6 +61,7 @@ Falta um lugar **único, confiável e cifrado** onde cada pessoa guarde suas cre
 | 2FA/TOTP, verificação de vazamentos (HIBP), importação/exportação, extensão de navegador | Evoluções futuras possíveis. |
 | TLS/HTTPS dentro da aplicação | Responsabilidade de um proxy reverso na implantação. |
 | Alta disponibilidade / múltiplas instâncias | SQLite e instância única são suficientes para o objetivo. |
+| Relatório de saúde do cofre (RF-16: senhas fracas e reutilizadas) | Requisito *Could*; retirado do escopo na entrega final (R-028). Os requisitos *Must* e *Should* estão completos. |
 
 ## 6. Premissas e restrições
 

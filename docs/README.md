@@ -22,6 +22,8 @@ A documentação é a **fonte da verdade** do projeto. Specs, planos, testes e c
 |------------------|----------|
 | [adr/](adr/README.md) | Decisões arquiteturais (ADRs) |
 | [registro-de-refinamentos.md](registro-de-refinamentos.md) | Mudanças na especificação motivadas por feedback |
+| [10-as-built.md](10-as-built.md) | Especificação técnica final (As-Built): o que foi entregue, contratos, desvios e limitações |
+| [ERROS.md](ERROS.md) | Erros lógicos encontrados: detecção, causa, correção e prevenção |
 | [sessoes/](sessoes/) | Resumos de sessões relevantes com o agente de IA |
 | [relatorios/](relatorios/README.md) | Evidências de execução da suíte de testes |
 | [glossario.md](glossario.md) | Termos do domínio e do processo |
